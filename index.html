@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Riads de Fès — Investissement Médina</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0f0d0b;color:#e8e0d4;min-height:100vh;overflow-x:hidden}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(15,13,11,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(196,164,120,.15);padding:0 32px;height:56px;display:flex;align-items:center;justify-content:space-between}
+.nav-brand{font-family:'Playfair Display',serif;font-size:18px;color:#c4a478;text-decoration:none;letter-spacing:1px}
+.nav-links{display:flex;gap:24px}
+.nav-links a{color:#9a8d7f;text-decoration:none;font-size:13px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;transition:color .3s;padding:4px 0;border-bottom:2px solid transparent}
+.nav-links a:hover,.nav-links a.active{color:#c4a478;border-bottom-color:#c4a478}
+
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:80px 24px 60px;background:radial-gradient(ellipse at 50% 30%,rgba(196,164,120,.08) 0%,transparent 60%)}
+.hero-content{max-width:800px}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(36px,6vw,64px);color:#c4a478;margin-bottom:16px;line-height:1.1}
+.hero h2{font-size:clamp(16px,2.5vw,22px);color:#9a8d7f;font-weight:300;margin-bottom:40px;line-height:1.5}
+.hero-line{width:80px;height:2px;background:linear-gradient(90deg,transparent,#c4a478,transparent);margin:0 auto 40px}
+.hero-stats{display:flex;justify-content:center;gap:40px;flex-wrap:wrap;margin-bottom:48px}
+.hero-stat{text-align:center}
+.hero-stat .val{font-family:'Playfair Display',serif;font-size:42px;color:#e8e0d4;line-height:1}
+.hero-stat .lbl{font-size:10px;color:#6a5d50;text-transform:uppercase;letter-spacing:2px;margin-top:6px}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;max-width:1000px;margin:0 auto 80px}
+.card{background:rgba(196,164,120,.04);border:1px solid rgba(196,164,120,.12);border-radius:16px;padding:32px;transition:all .4s;cursor:pointer;text-decoration:none;color:inherit;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#c4a478,#8a7a68);transform:scaleX(0);transition:transform .4s;transform-origin:left}
+.card:hover{background:rgba(196,164,120,.08);border-color:rgba(196,164,120,.25);transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.card:hover::before{transform:scaleX(1)}
+.card-icon{font-size:36px;margin-bottom:16px}
+.card h3{font-family:'Playfair Display',serif;font-size:22px;color:#c4a478;margin-bottom:8px}
+.card p{font-size:13px;color:#9a8d7f;line-height:1.6;margin-bottom:16px}
+.card-features{display:flex;flex-wrap:wrap;gap:6px}
+.card-feat{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;background:rgba(196,164,120,.08);border:1px solid rgba(196,164,120,.15);color:#c4a478;letter-spacing:.5px}
+.card-arrow{position:absolute;bottom:24px;right:24px;font-size:20px;color:#c4a478;opacity:.3;transition:all .3s}
+.card:hover .card-arrow{opacity:1;transform:translateX(4px)}
+
+.section{padding:60px 24px;max-width:1000px;margin:0 auto}
+.section h2{font-family:'Playfair Display',serif;font-size:28px;color:#c4a478;margin-bottom:24px;text-align:center}
+
+.rgc-table{width:100%;border-collapse:collapse;margin:24px 0;font-size:13px}
+.rgc-table th{background:rgba(196,164,120,.1);color:#c4a478;padding:10px 12px;text-align:left;font-weight:600;letter-spacing:.5px;text-transform:uppercase;font-size:10px}
+.rgc-table td{padding:10px 12px;border-bottom:1px solid rgba(196,164,120,.06);color:#e8e0d4}
+.rgc-table tr:hover{background:rgba(196,164,120,.04)}
+.star{color:#ffc107;font-weight:bold}
+
+.methodology{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:24px 0}
+.meth-item{background:rgba(196,164,120,.04);border:1px solid rgba(196,164,120,.08);border-radius:10px;padding:16px}
+.meth-item .pct{font-family:'Playfair Display',serif;font-size:28px;color:#c4a478}
+.meth-item .mlbl{font-size:12px;color:#9a8d7f;margin-top:4px}
+
+footer{text-align:center;padding:40px 24px;border-top:1px solid rgba(196,164,120,.1);color:#6a5d50;font-size:11px}
+
+@media(max-width:600px){
+  .hero-stats{gap:24px}.hero-stat .val{font-size:32px}
+  .nav-links{gap:12px}.nav-links a{font-size:11px}
+  .cards{grid-template-columns:1fr;gap:16px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-brand">Riads de Fès</a>
+  <div class="nav-links">
+    <a href="index.html" class="active">Accueil</a>
+    <a href="carte.html">Carte</a>
+    <a href="rapport.html">Rapport</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-content">
+    <h1>Riads de la Médina de Fès</h1>
+    <h2>Analyse d'Investissement · Maisons d'Hôtes</h2>
+    <div class="hero-line"></div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="val">29</div><div class="lbl">Propriétés</div></div>
+      <div class="hero-stat"><div class="val">2 384</div><div class="lbl">m² totaux</div></div>
+      <div class="hero-stat"><div class="val">18</div><div class="lbl">Quartiers</div></div>
+      <div class="hero-stat"><div class="val">5★</div><div class="lbl">Standing max</div></div>
+    </div>
+
+    <div class="cards">
+      <a href="carte.html" class="card">
+        <div class="card-icon">🗺️</div>
+        <h3>Carte Interactive</h3>
+        <p>Vue satellite de la médina avec les 29 riads, monuments, parkings, circuits touristiques et programme de visite optimisé.</p>
+        <div class="card-features">
+          <span class="card-feat">Vue satellite</span>
+          <span class="card-feat">Scoring en direct</span>
+          <span class="card-feat">6 jours de visite</span>
+          <span class="card-feat">Standing RGC</span>
+        </div>
+        <span class="card-arrow">→</span>
+      </a>
+      <a href="rapport.html" class="card">
+        <div class="card-icon">📊</div>
+        <h3>Rapport d'Investissement</h3>
+        <p>Analyse détaillée de chaque riad : surface, standing RGC, proximité monuments, parking, score d'investissement. Imprimable en PDF.</p>
+        <div class="card-features">
+          <span class="card-feat">Normes RGC</span>
+          <span class="card-feat">29 fiches détaillées</span>
+          <span class="card-feat">Classement</span>
+          <span class="card-feat">Export PDF</span>
+        </div>
+        <span class="card-arrow">→</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>Normes RGC — Ministère du Tourisme</h2>
+  <p style="text-align:center;color:#9a8d7f;margin-bottom:24px;font-size:13px;">Référentiel Général de Classement pour Maisons d'Hôtes · Toutes catégories : 4 à 10 chambres</p>
+  <table class="rgc-table">
+    <thead>
+      <tr><th>Catégorie</th><th>Chambre min.</th><th>Salle de bain</th><th>Accueil</th><th>Cuisine</th><th>Extras</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="star">1★</td><td>≥ 12 m²</td><td>≥ 2 m²</td><td>≥ 10 m²</td><td>—</td><td>—</td></tr>
+      <tr><td class="star">2★</td><td>≥ 14 m²</td><td>≥ 2,5 m²</td><td>≥ 10 m²</td><td>—</td><td>Espaces verts</td></tr>
+      <tr><td class="star">3★</td><td>≥ 16 m²</td><td>≥ 3 m²</td><td>≥ 15 m²</td><td>8-12 m²</td><td>Mini-piscine 5m², hammam, sauna</td></tr>
+      <tr><td class="star">4★</td><td>≥ 20 m²</td><td>≥ 3,5 m²</td><td>≥ 20 m²</td><td>10-20 m²</td><td>Mini-piscine 7m², hammam, sauna</td></tr>
+      <tr><td class="star">5★</td><td>≥ 25 m²</td><td>≥ 4 m²</td><td>≥ 25 m²</td><td>10-20 m²</td><td>Piscine 15m², dressing 3m²</td></tr>
+    </tbody>
+  </table>
+  <p style="text-align:center;color:#6a5d50;font-size:11px;margin-top:12px;">Tolérance médina : 10m² minimum accepté sur 20% des chambres · Patio central obligatoire (~20% surface au sol)</p>
+</div>
+
+<div class="section">
+  <h2>Méthodologie de Scoring</h2>
+  <p style="text-align:center;color:#9a8d7f;margin-bottom:24px;font-size:13px;">Score d'investissement sur 5 points — 6 critères pondérés</p>
+  <div class="methodology">
+    <div class="meth-item"><div class="pct">20%</div><div class="mlbl">Zone touristique — niveau de tourisme du quartier</div></div>
+    <div class="meth-item"><div class="pct">20%</div><div class="mlbl">Surface — potentiel de chambres et standing RGC</div></div>
+    <div class="meth-item"><div class="pct">20%</div><div class="mlbl">Monument — distance au monument le plus proche</div></div>
+    <div class="meth-item"><div class="pct">15%</div><div class="mlbl">Circuit touristique — visibilité pour les visiteurs</div></div>
+    <div class="meth-item"><div class="pct">15%</div><div class="mlbl">Parking — accès véhicule, crucial pour rénovation</div></div>
+    <div class="meth-item"><div class="pct">10%</div><div class="mlbl">Hotspots — cafés, hammams, souks, hôtels</div></div>
+  </div>
+  <p style="text-align:center;color:#6a5d50;font-size:11px;margin-top:16px;">Distances : Haversine × 1,8 (ruelles sinueuses) · Marche : 50m/min · Calibré sur projet réel Marrakech (117m² → 4 ch. → 2★)</p>
+</div>
+
+<footer>
+  Rapport préparé pour l'évaluation d'investissement immobilier · Médina de Fès, Maroc · Mai 2026<br>
+  Les coordonnées GPS sont approximatives — une visite sur place est indispensable avant toute transaction.
+</footer>
+
+</body>
+</html>

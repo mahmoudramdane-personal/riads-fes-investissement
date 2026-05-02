@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Riads Fès Médina - Carte Satellite, Monuments & Programme de Visites</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',sans-serif;background:#0a0a0a;color:#e8e0d4;overflow:hidden;height:100vh}
+  #app{display:grid;grid-template-columns:420px 1fr;grid-template-rows:auto auto 1fr;height:100vh}
+  .site-nav{grid-column:1/-1;background:rgba(15,13,11,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(196,164,120,.15);padding:0 24px;height:40px;display:flex;align-items:center;justify-content:space-between;z-index:2000}
+  .site-nav a{color:#9a8d7f;text-decoration:none;font-size:11px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;transition:color .3s;padding:4px 0;border-bottom:2px solid transparent}
+  .site-nav a:hover,.site-nav a.active{color:#c4a478;border-bottom-color:#c4a478}
+  .site-nav .brand{font-family:'Playfair Display',serif;font-size:14px;color:#c4a478}
+  .site-nav .links{display:flex;gap:20px}
+  header{grid-column:1/-1;background:linear-gradient(135deg,#1a1410,#2a1f15 50%,#1a1410);border-bottom:1px solid rgba(196,164,120,.3);padding:12px 24px;display:flex;align-items:center;justify-content:space-between}
+  header h1{font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:#c4a478;letter-spacing:1px}
+  header .subtitle{font-size:10px;color:#8a7a68;letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+  .header-stats{display:flex;gap:22px;align-items:center}
+  .header-stat{text-align:center}
+  .header-stat .value{font-family:'Playfair Display',serif;font-size:18px;color:#c4a478;font-weight:700}
+  .header-stat .label{font-size:9px;color:#8a7a68;text-transform:uppercase;letter-spacing:1.5px}
+  .sidebar{background:linear-gradient(180deg,#141210,#0f0d0b);border-right:1px solid rgba(196,164,120,.15);overflow-y:auto;display:flex;flex-direction:column}
+  .sidebar::-webkit-scrollbar{width:4px}.sidebar::-webkit-scrollbar-thumb{background:rgba(196,164,120,.3);border-radius:2px}
+  .tab-bar{display:flex;border-bottom:1px solid rgba(196,164,120,.15);position:sticky;top:0;background:#141210;z-index:10;flex-shrink:0}
+  .tab{flex:1;padding:10px 4px;text-align:center;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#6a5d50;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+  .tab:hover{color:#8a7a68}.tab.active{color:#c4a478;border-bottom-color:#c4a478}
+  .tab-content{display:none;flex:1;overflow-y:auto}.tab-content.active{display:block}
+  .filter-bar{padding:10px 12px;border-bottom:1px solid rgba(196,164,120,.1);position:sticky;top:0;background:#141210;z-index:9}
+  .filter-bar input{width:100%;background:rgba(196,164,120,.08);border:1px solid rgba(196,164,120,.2);border-radius:8px;padding:8px 12px;color:#e8e0d4;font-size:12px;outline:none}
+  .filter-bar input:focus{border-color:rgba(196,164,120,.5)}.filter-bar input::placeholder{color:#6a5d50}
+  .sort-buttons{display:flex;gap:4px;margin-top:7px;flex-wrap:wrap}
+  .sort-btn{background:rgba(196,164,120,.08);border:1px solid rgba(196,164,120,.15);border-radius:6px;padding:4px 8px;color:#8a7a68;font-size:9px;cursor:pointer;transition:all .2s}
+  .sort-btn:hover,.sort-btn.active{background:rgba(196,164,120,.2);color:#c4a478;border-color:rgba(196,164,120,.4)}
+  .riad-card{padding:10px 12px;border-bottom:1px solid rgba(196,164,120,.06);cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+  .riad-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:transparent;transition:background .25s}
+  .riad-card:hover{background:rgba(196,164,120,.06)}.riad-card:hover::before{background:#c4a478}
+  .riad-card.shortlisted{background:rgba(76,175,80,.08)}.riad-card.shortlisted::before{background:#4caf50}
+  .riad-name{font-family:'Playfair Display',serif;font-size:13px;font-weight:600;color:#e8e0d4;margin-bottom:2px;display:flex;align-items:center;gap:6px}
+  .riad-address{font-size:9px;color:#7a6d60;margin-bottom:4px}
+  .riad-meta{display:flex;gap:8px;align-items:center}
+  .riad-surface{font-size:11px;font-weight:600;color:#c4a478;min-width:44px}
+  .riad-surface-bar{flex:1;height:3px;background:rgba(196,164,120,.1);border-radius:2px;overflow:hidden}
+  .riad-surface-fill{height:100%;border-radius:2px}
+  .riad-distances{display:flex;gap:5px;margin-top:4px;flex-wrap:wrap}
+  .dist-tag{font-size:8px;padding:2px 5px;border-radius:3px;display:flex;align-items:center;gap:2px}
+  .dist-monument{background:rgba(255,193,7,.12);color:#ffc107}
+  .dist-circuit{background:rgba(0,188,212,.12);color:#00bcd4}
+  .dist-parking{background:rgba(244,67,54,.12);color:#ef5350}
+  .riad-score{display:flex;align-items:center;gap:4px;margin-top:4px}
+  .score-bar{display:flex;gap:2px}
+  .score-dot{width:5px;height:5px;border-radius:50%;background:rgba(196,164,120,.15)}
+  .score-dot.filled{background:#c4a478}.score-dot.high{background:#4caf50}
+  .score-label{font-size:9px;color:#6a5d50;margin-left:3px}
+  .riad-actions{display:flex;gap:4px;margin-top:5px}
+  .riad-btn{background:rgba(196,164,120,.1);border:1px solid rgba(196,164,120,.2);border-radius:5px;padding:3px 7px;color:#8a7a68;font-size:8px;cursor:pointer;text-transform:uppercase;letter-spacing:.5px;transition:all .2s}
+  .riad-btn:hover{background:rgba(196,164,120,.2);color:#c4a478}
+  .riad-btn.shortlist-btn.active{background:rgba(76,175,80,.2);border-color:rgba(76,175,80,.4);color:#4caf50}
+  #map{width:100%;height:100%;background:#1a1a1a}.map-container{position:relative}
+  .map-controls{position:absolute;top:10px;left:10px;z-index:1000;display:flex;gap:4px;flex-wrap:wrap}
+  .layer-btn{background:rgba(20,18,16,.9);backdrop-filter:blur(8px);border:1px solid rgba(196,164,120,.25);border-radius:7px;padding:6px 10px;color:#8a7a68;font-size:9px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:1px}
+  .layer-btn:hover{color:#c4a478;border-color:rgba(196,164,120,.5)}.layer-btn.active{background:rgba(196,164,120,.2);color:#c4a478;border-color:#c4a478}
+  .toggle-group{position:absolute;top:46px;left:10px;z-index:1000;background:rgba(20,18,16,.92);backdrop-filter:blur(8px);border:1px solid rgba(196,164,120,.2);border-radius:8px;padding:8px 12px}
+  .toggle-item{display:flex;align-items:center;gap:6px;margin-bottom:4px;cursor:pointer;font-size:10px;color:#9a8d7f}
+  .toggle-item:last-child{margin-bottom:0}.toggle-item input{accent-color:#c4a478;width:13px;height:13px}
+  .zone-info-panel{position:absolute;bottom:16px;right:16px;background:rgba(20,18,16,.95);backdrop-filter:blur(12px);border:1px solid rgba(196,164,120,.25);border-radius:12px;padding:16px;width:320px;z-index:1000;display:none;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+  .zone-info-panel.visible{display:block}
+  .zone-info-panel h3{font-family:'Playfair Display',serif;font-size:16px;margin-bottom:8px}
+  .zone-info-panel p{font-size:10px;color:#9a8d7f;line-height:1.6;margin-bottom:5px}
+  .zone-info-panel .zone-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(196,164,120,.15)}
+  .zone-stat-item .stat-val{font-family:'Playfair Display',serif;font-size:16px;color:#e8e0d4;font-weight:600}
+  .zone-stat-item .stat-lbl{font-size:8px;color:#6a5d50;text-transform:uppercase;letter-spacing:1px}
+  .legend{position:absolute;bottom:16px;left:10px;background:rgba(20,18,16,.92);backdrop-filter:blur(12px);border:1px solid rgba(196,164,120,.2);border-radius:10px;padding:8px 12px;z-index:1000;max-height:240px;overflow-y:auto;font-size:9px}
+  .legend::-webkit-scrollbar{width:3px}.legend::-webkit-scrollbar-thumb{background:rgba(196,164,120,.3);border-radius:2px}
+  .legend h4{font-size:9px;color:#8a7a68;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:5px;cursor:pointer}
+  .legend-item{display:flex;align-items:center;gap:5px;margin-bottom:2px;color:#9a8d7f;cursor:pointer;padding:2px 3px;border-radius:3px}
+  .legend-item:hover{background:rgba(196,164,120,.1)}
+  .legend-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;border:1px solid rgba(255,255,255,.4)}
+  .shortlist-panel{position:absolute;top:10px;right:10px;background:rgba(20,18,16,.92);backdrop-filter:blur(12px);border:1px solid rgba(76,175,80,.3);border-radius:10px;padding:10px 14px;z-index:1000;min-width:180px;display:none}
+  .shortlist-panel.visible{display:block}
+  .shortlist-panel h4{font-size:9px;color:#4caf50;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:5px}
+  .shortlist-item{font-size:10px;color:#ccc;padding:2px 0}
+  .shortlist-total{margin-top:5px;padding-top:5px;border-top:1px solid rgba(76,175,80,.2);font-size:11px;color:#4caf50;font-weight:600}
+  .custom-marker{position:relative}
+  .marker-label{position:absolute;white-space:nowrap;font-family:'Inter',sans-serif;font-size:8px;font-weight:600;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.9),0 0 8px rgba(0,0,0,.7);pointer-events:none;transform:translate(-50%,3px);left:50%;top:100%}
+  .leaflet-popup-content-wrapper{background:rgba(20,18,16,.97)!important;border:1px solid rgba(196,164,120,.3)!important;border-radius:10px!important;box-shadow:0 8px 32px rgba(0,0,0,.5)!important;color:#e8e0d4!important}
+  .leaflet-popup-tip{background:rgba(20,18,16,.97)!important;border:1px solid rgba(196,164,120,.3)!important}
+  .leaflet-popup-content{margin:10px 12px!important;font-family:'Inter',sans-serif!important;min-width:230px!important}
+  .popup-name{font-family:'Playfair Display',serif;font-size:14px;color:#c4a478;margin-bottom:3px}
+  .popup-address{font-size:9px;color:#8a7a68;margin-bottom:7px}
+  .popup-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:6px}
+  .popup-stat .pval{font-size:15px;font-weight:600;color:#e8e0d4}
+  .popup-stat .plbl{font-size:7px;color:#6a5d50;text-transform:uppercase;letter-spacing:1px}
+  .popup-distances{margin:6px 0;padding:6px 0;border-top:1px solid rgba(196,164,120,.15);border-bottom:1px solid rgba(196,164,120,.15)}
+  .popup-dist-row{display:flex;justify-content:space-between;align-items:center;padding:2px 0;font-size:10px}
+  .popup-dist-name{color:#9a8d7f}.popup-dist-val{font-weight:600}
+  .popup-dist-close{color:#4caf50}.popup-dist-mid{color:#ffc107}.popup-dist-far{color:#ff9800}
+  .popup-tags{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:5px}
+  .popup-tag{display:inline-block;border-radius:4px;padding:2px 6px;font-size:8px;text-transform:uppercase;letter-spacing:.5px}
+  .popup-zone-tag{background:rgba(196,164,120,.15);border:1px solid rgba(196,164,120,.25);color:#c4a478}
+  .popup-links{display:flex;gap:4px;margin-top:6px}
+  .popup-link{display:inline-block;border-radius:4px;padding:3px 8px;font-size:8px;text-decoration:none;letter-spacing:.5px;font-family:'Inter',sans-serif}
+  .popup-gmaps{background:rgba(66,133,244,.15);border:1px solid rgba(66,133,244,.3);color:#4285f4}
+  .popup-gmaps:hover{background:rgba(66,133,244,.25)}
+  .size-category{font-size:8px;padding:2px 5px;border-radius:3px}
+  .size-small{background:rgba(255,152,0,.15);color:#ff9800}
+  .size-medium{background:rgba(76,175,80,.15);color:#4caf50}
+  .size-large{background:rgba(33,150,243,.15);color:#2196f3}
+  .size-xlarge{background:rgba(156,39,176,.15);color:#ce93d8}
+
+  /* Visit program styles */
+  .visit-day{margin:10px 12px;background:rgba(196,164,120,.04);border:1px solid rgba(196,164,120,.1);border-radius:10px;overflow:hidden}
+  .visit-day-header{padding:10px 12px;background:rgba(196,164,120,.08);display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+  .visit-day-header:hover{background:rgba(196,164,120,.12)}
+  .visit-day-title{font-family:'Playfair Display',serif;font-size:14px;color:#c4a478}
+  .visit-day-meta{font-size:9px;color:#8a7a68}
+  .visit-day-body{padding:10px 12px}
+  .visit-step{display:flex;gap:10px;margin-bottom:10px;position:relative;padding-left:20px}
+  .visit-step::before{content:'';position:absolute;left:6px;top:18px;bottom:-10px;width:1px;background:rgba(196,164,120,.2)}
+  .visit-step:last-child::before{display:none}
+  .visit-step-dot{position:absolute;left:0;top:4px;width:13px;height:13px;border-radius:50%;border:2px solid;display:flex;align-items:center;justify-content:center;font-size:6px;font-weight:700;color:#fff}
+  .step-parking .visit-step-dot{border-color:#ef5350;background:#ef5350}
+  .step-walk .visit-step-dot{border-color:#00bcd4;background:transparent;color:#00bcd4;font-size:8px}
+  .step-visit .visit-step-dot{border-color:#c4a478;background:#c4a478}
+  .step-lunch .visit-step-dot{border-color:#ff9800;background:#ff9800}
+  .visit-step-content{flex:1}
+  .visit-step-title{font-size:11px;font-weight:600;color:#e8e0d4;margin-bottom:1px}
+  .visit-step-desc{font-size:9px;color:#7a6d60;line-height:1.4}
+  .visit-step-time{font-size:9px;color:#c4a478;font-weight:500;margin-top:2px}
+  .visit-show-route{background:rgba(0,188,212,.15);border:1px solid rgba(0,188,212,.3);border-radius:5px;padding:4px 10px;color:#00bcd4;font-size:9px;cursor:pointer;margin:8px 0;display:inline-block;font-family:'Inter',sans-serif;transition:all .2s}
+  .visit-show-route:hover{background:rgba(0,188,212,.25)}
+  .visit-summary{padding:8px 12px;background:rgba(196,164,120,.06);border-top:1px solid rgba(196,164,120,.1);font-size:9px;color:#8a7a68;display:flex;justify-content:space-between}
+
+  .monument-card{padding:8px 12px;border-bottom:1px solid rgba(255,193,7,.08);cursor:pointer;transition:all .2s}
+  .monument-card:hover{background:rgba(255,193,7,.06)}
+  .monument-name{font-family:'Playfair Display',serif;font-size:12px;color:#ffc107;margin-bottom:1px}
+  .monument-desc{font-size:9px;color:#8a7a68;line-height:1.4}
+  .monument-type{font-size:8px;color:#6a5d50;text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+  .hotspot-section-title{padding:8px 12px;font-size:9px;color:#8a7a68;text-transform:uppercase;letter-spacing:1.5px;border-bottom:1px solid rgba(196,164,120,.08);background:rgba(196,164,120,.03)}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="site-nav">
+    <a href="index.html" class="brand">Riads de Fès</a>
+    <div class="links">
+      <a href="index.html">Accueil</a>
+      <a href="carte.html" class="active">Carte</a>
+      <a href="rapport.html">Rapport</a>
+    </div>
+  </div>
+  <header>
+    <div>
+      <h1>Riads Médina de Fès</h1>
+      <div class="subtitle">Carte satellite · Monuments · Programme de visites</div>
+    </div>
+    <div class="header-stats">
+      <div class="header-stat"><div class="value">29</div><div class="label">Propriétés</div></div>
+      <div class="header-stat"><div class="value">2 384</div><div class="label">m² total</div></div>
+      <div class="header-stat"><div class="value" id="shortlist-count">0</div><div class="label">Présélection</div></div>
+    </div>
+  </header>
+  <div class="sidebar">
+    <div class="tab-bar">
+      <div class="tab active" data-tab="riads">Propriétés</div>
+      <div class="tab" data-tab="hotspots">Points d'intérêt</div>
+      <div class="tab" data-tab="visits">Programme</div>
+    </div>
+    <div class="tab-content active" id="tab-riads"></div>
+    <div class="tab-content" id="tab-hotspots"></div>
+    <div class="tab-content" id="tab-visits"></div>
+  </div>
+  <div class="map-container">
+    <div id="map"></div>
+    <div class="map-controls">
+      <button class="layer-btn active" data-layer="satellite">Satellite</button>
+      <button class="layer-btn" data-layer="hybrid">Hybride</button>
+      <button class="layer-btn" data-layer="dark">Sombre</button>
+      <button class="layer-btn" data-layer="street">Plan</button>
+    </div>
+    <div class="toggle-group">
+      <label class="toggle-item"><input type="checkbox" id="tog-monuments" checked> 🏛️ Monuments</label>
+      <label class="toggle-item"><input type="checkbox" id="tog-parkings" checked> 🅿️ Parkings & accès</label>
+      <label class="toggle-item"><input type="checkbox" id="tog-hotspots" checked> ⭐ Points d'intérêt</label>
+      <label class="toggle-item"><input type="checkbox" id="tog-circuit" checked> 🔵 Circuit principal</label>
+      <label class="toggle-item"><input type="checkbox" id="tog-circuit2" checked> 🟢 Circuit secondaire</label>
+      <label class="toggle-item"><input type="checkbox" id="tog-labels" checked> 🏷️ Noms</label>
+      <label class="toggle-item"><input type="checkbox" id="tog-visitroutes"> 📍 Routes de visite</label>
+    </div>
+    <div class="legend" id="legend"><h4>Quartiers</h4><div id="legend-items"></div></div>
+    <div class="shortlist-panel" id="shortlist-panel"><h4>Présélection</h4><div id="shortlist-list"></div><div class="shortlist-total" id="shortlist-total"></div></div>
+    <div class="zone-info-panel" id="zone-info"></div>
+  </div>
+</div>
+
+<script>
+// ==================== DATA ====================
+const monuments = [
+  {name:"Bab Bou Jeloud",short:"Bab Bou Jeloud",type:"Porte historique",desc:"La célèbre Porte Bleue, entrée principale de la médina et point de départ du circuit touristique.",lat:34.06180,lng:-4.98220,cat:"monument",icon:"gate"},
+  {name:"Médersa Bou Inania",short:"Bou Inania",type:"Médersa",desc:"Chef-d'œuvre mérinide (XIVe s.). Seule médersa de Fès avec un minaret. Ouverte aux visiteurs.",lat:34.06280,lng:-4.98080,cat:"monument",icon:"school"},
+  {name:"Dar el-Magana",short:"Dar el-Magana",type:"Horloge hydraulique",desc:"Horloge à eau du XIVe siècle, unique au monde.",lat:34.06300,lng:-4.98000,cat:"monument",icon:"historic"},
+  {name:"Fondouk Nejjarine",short:"Nejjarine",type:"Musée du Bois",desc:"Fondouk du XVIIIe s. avec musée des arts du bois. Fontaine en zellige remarquable.",lat:34.06350,lng:-4.97520,cat:"monument",icon:"museum"},
+  {name:"Zaouïa Moulay Idriss II",short:"Moulay Idriss II",type:"Sanctuaire",desc:"Sanctuaire le plus vénéré de Fès. Tombeau du fondateur. Interdit aux non-musulmans.",lat:34.06320,lng:-4.97380,cat:"monument",icon:"mosque"},
+  {name:"Médersa Attarine",short:"Attarine",type:"Médersa",desc:"Joyau mérinide (1325). Zellige, stuc et cèdre exceptionnels. Adjacente à Qarawiyyin.",lat:34.06380,lng:-4.97350,cat:"monument",icon:"school"},
+  {name:"Mosquée Qarawiyyin",short:"Qarawiyyin",type:"Mosquée-Université",desc:"Fondée en 859, plus ancienne université au monde. UNESCO. Bibliothèque restaurée.",lat:34.06400,lng:-4.97280,cat:"monument",icon:"mosque"},
+  {name:"Place Seffarine",short:"Pl. Seffarine",type:"Place historique",desc:"Plus ancienne place de Fès. Dinandiers (cuivre) depuis des siècles.",lat:34.06420,lng:-4.97180,cat:"monument",icon:"square"},
+  {name:"Tanneries Chouara",short:"Tanneries",type:"Site touristique majeur",desc:"Plus grandes tanneries traditionnelles au monde. Vue panoramique. Icône de Fès.",lat:34.06480,lng:-4.96880,cat:"monument",icon:"landmark"},
+  {name:"Musée Dar Batha",short:"Dar Batha",type:"Musée / Palais",desc:"Palais hispano-mauresque. Musée des arts et traditions. Jardins andalous.",lat:34.06120,lng:-4.98080,cat:"monument",icon:"museum"},
+  {name:"Place R'cif",short:"Pl. R'cif",type:"Carrefour majeur",desc:"Carrefour est de la médina. Transport, marché local, point d'entrée est.",lat:34.06150,lng:-4.96950,cat:"monument",icon:"square"},
+  {name:"Souk du Henné",short:"Souk Henné",type:"Souk",desc:"Souk pittoresque : henné, cosmétiques traditionnels, poteries.",lat:34.06320,lng:-4.97480,cat:"monument",icon:"souk"},
+  {name:"Médersa Cherratine",short:"Cherratine",type:"Médersa",desc:"Grande médersa alaouite (XVIIe s.). 120 chambres d'étudiants.",lat:34.06400,lng:-4.97150,cat:"monument",icon:"school"},
+  {name:"Borj Nord",short:"Borj Nord",type:"Forteresse / Musée",desc:"Forteresse saadienne. Musée des armes (8000 pièces). Vue panoramique.",lat:34.06680,lng:-4.98300,cat:"monument",icon:"fortress"},
+  {name:"Tombeaux Mérinides",short:"T. Mérinides",type:"Ruines / Point de vue",desc:"Ruines des tombeaux royaux. Meilleur point de vue sur la médina, coucher de soleil.",lat:34.06880,lng:-4.97750,cat:"monument",icon:"ruins"},
+  {name:"Fontaine Ain Allou",short:"Ain Allou",type:"Fontaine",desc:"Belle fontaine en zellige sur Talaa Kebira. Point de repère du circuit.",lat:34.06300,lng:-4.97850,cat:"monument",icon:"fountain"},
+  {name:"Bab Rcif",short:"Bab Rcif",type:"Porte",desc:"Porte est. Accès véhicule et parking à proximité.",lat:34.06100,lng:-4.96850,cat:"monument",icon:"gate"},
+  {name:"Bab Guissa",short:"Bab Guissa",type:"Porte",desc:"Porte nord. Accès véhicule, parking. Palais Jamaï à proximité.",lat:34.06750,lng:-4.97450,cat:"monument",icon:"gate"},
+];
+
+const parkings = [
+  {name:"Parking Bab Bou Jeloud",short:"P. Bou Jeloud",desc:"Parking principal ouest. Grand, accessible. Point d'entrée le plus populaire de la médina. Accès direct à Talaa Kebira et Talaa Sghira.",lat:34.06140,lng:-4.98280,capacity:"Grand",access:"Ouest"},
+  {name:"Parking Bab Guissa",short:"P. Guissa",desc:"Parking nord. Accès par route goudronnée. Proche Hôtel Palais Jamaï. Idéal pour le quartier Ras Jnane et le nord de la médina.",lat:34.06780,lng:-4.97500,capacity:"Moyen",access:"Nord"},
+  {name:"Parking Place R'cif",short:"P. R'cif",desc:"Parking est, au niveau de Place R'cif. Accès direct à la partie est de la médina. Proche des tanneries et du quartier des artisans.",lat:34.06120,lng:-4.96900,capacity:"Moyen",access:"Est"},
+  {name:"Parking Ain Azliten",short:"P. Ain Azliten",desc:"Parking sud-ouest. Accès par la route d'Ain Azliten. Bonne couverture pour les quartiers sud et centre-sud de la médina.",lat:34.05980,lng:-4.97800,capacity:"Moyen",access:"Sud-Ouest"},
+  {name:"Parking Bab Ftouh",short:"P. Bab Ftouh",desc:"Parking sud. Grand espace. Entrée sud de la médina. Idéal pour les quartiers Bouakda, Blida et le sud.",lat:34.05700,lng:-4.97300,capacity:"Grand",access:"Sud"},
+  {name:"Parking Oued Zhoun",short:"P. Oued Zhoun",desc:"Parking le long de la route Oued Zhoun. Accès est-sud. Alternative au parking R'cif quand celui-ci est plein.",lat:34.05900,lng:-4.97000,capacity:"Moyen",access:"Est-Sud"},
+];
+
+const hotspots = [
+  {name:"Café Clock",short:"Café Clock",desc:"Café culturel emblématique. Terrasse panoramique, concerts, ateliers. Point de repère pour les touristes.",lat:34.06250,lng:-4.97480,cat:"cafe",icon:"☕"},
+  {name:"Riad Fès (Hôtel 5★)",short:"Riad Fès",desc:"Hôtel de luxe de référence. Indicateur de la valeur premium du quartier.",lat:34.06300,lng:-4.97300,cat:"hotel",icon:"🏨"},
+  {name:"Palais Jamaï (Hôtel)",short:"Palais Jamaï",desc:"Hôtel historique près de Bab Guissa. Ancrage touristique nord de la médina.",lat:34.06720,lng:-4.97480,cat:"hotel",icon:"🏨"},
+  {name:"Hammam Sidi Azzouz",short:"Hammam Azzouz",desc:"Hammam historique. Expérience culturelle recherchée par les touristes.",lat:34.06280,lng:-4.97200,cat:"hammam",icon:"♨️"},
+  {name:"Souk des Teinturiers",short:"S. Teinturiers",desc:"Souk coloré et photogénique. Forte attraction touristique.",lat:34.06350,lng:-4.97420,cat:"souk",icon:"🎨"},
+  {name:"Jardin Jnan Sbil",short:"Jnan Sbil",desc:"Grand jardin public à l'entrée ouest de la médina. Lieu de promenade populaire.",lat:34.06050,lng:-4.98200,cat:"jardin",icon:"🌿"},
+  {name:"Souk Attarine (Épices)",short:"S. Attarine",desc:"Souk des épices et parfums. L'un des plus atmosphériques de la médina.",lat:34.06360,lng:-4.97380,cat:"souk",icon:"🧂"},
+  {name:"Rue Talaa Kebira",short:"Talaa Kebira",desc:"Artère commerciale principale. Forte fréquentation touristique. Boutiques, restaurants.",lat:34.06300,lng:-4.97900,cat:"rue",icon:"🛣️"},
+  {name:"Place Lalla Yeddouna",short:"Lalla Yeddouna",desc:"Place récemment rénovée. Nouveau pôle culturel et gastronomique au bord de la rivière.",lat:34.06350,lng:-4.97100,cat:"place",icon:"✨"},
+  {name:"Terrasse des Tanneurs",short:"Terr. Tanneurs",desc:"Point de vue le plus photographié de Fès. Accès par les boutiques de cuir.",lat:34.06460,lng:-4.96920,cat:"viewpoint",icon:"📸"},
+];
+
+const circuitPrincipal = [[34.06180,-4.98220],[34.06210,-4.98180],[34.06250,-4.98120],[34.06280,-4.98080],[34.06300,-4.98000],[34.06300,-4.97850],[34.06310,-4.97750],[34.06320,-4.97650],[34.06340,-4.97550],[34.06350,-4.97520],[34.06320,-4.97480],[34.06320,-4.97380],[34.06380,-4.97350],[34.06400,-4.97280],[34.06420,-4.97180],[34.06430,-4.97100],[34.06450,-4.97000],[34.06480,-4.96880]];
+const circuitSecondaire = [[34.06180,-4.98220],[34.06150,-4.98150],[34.06120,-4.98080],[34.06100,-4.97950],[34.06080,-4.97800],[34.06100,-4.97650],[34.06120,-4.97500],[34.06150,-4.97450],[34.06200,-4.97330],[34.06250,-4.97250],[34.06280,-4.97180],[34.06300,-4.97100],[34.06250,-4.97000],[34.06200,-4.96980],[34.06150,-4.96950],[34.06100,-4.96850]];
+
+const riads = [
+  {name:"Dar Sayeh",address:"30 Zankat Chedda Ras Jnane",surface:72,zone:"Ras Jnane",lat:34.06720,lng:-4.97180},
+  {name:"Dar CHAKCHAK",address:"9 Derb Nachar Ras Jnane",surface:104,zone:"Ras Jnane",lat:34.06690,lng:-4.97220},
+  {name:"Dar Lyoussfi",address:"25 Ras Jnane Laayoune",surface:65,zone:"Ras Jnane",lat:34.06650,lng:-4.97260},
+  {name:"Dar Dahbi Abdelouahed",address:"20 Ras Jnane",surface:48,zone:"Ras Jnane",lat:34.06710,lng:-4.97300},
+  {name:"Dar Aicha",address:"5 Derb Raiss Ras Jnane",surface:85,zone:"Ras Jnane",lat:34.06670,lng:-4.97140},
+  {name:"Dar Raiss Med",address:"36 Takharbicht Laayoune",surface:52,zone:"Laayoune",lat:34.06380,lng:-4.97550},
+  {name:"Dar Benkirane",address:"22 Derb Tbibat Laayoune",surface:122,zone:"Laayoune",lat:34.06340,lng:-4.97500},
+  {name:"Dar Mellouki 1",address:"35 Takharbicht Laayoune",surface:94,zone:"Laayoune",lat:34.06400,lng:-4.97580},
+  {name:"Dar Boussaadani",address:"1 Zaouina Laayoune",surface:87,zone:"Laayoune",lat:34.06320,lng:-4.97620},
+  {name:"Dar Yaakoubi",address:"13 Derb Lamkaouass Laayoune",surface:95,zone:"Laayoune",lat:34.06360,lng:-4.97650},
+  {name:"Dar Benjelloune",address:"19 Sbaa Louyat",surface:110,zone:"Sbaa Louyat",lat:34.06250,lng:-4.97400},
+  {name:"Dar Mellouki 2",address:"4 Derb Rial Aqibat Ben Souaf",surface:106,zone:"Aqibat Ben Souaf",lat:34.06350,lng:-4.97350},
+  {name:"Dar Bni Hya",address:"37 Ain El Khail",surface:108,zone:"Ain El Khail",lat:34.06500,lng:-4.97100},
+  {name:"Dar Benwahoude",address:"17 Derb Sidi Boudiama Blida",surface:100,zone:"Blida",lat:34.06050,lng:-4.97350},
+  {name:"Dar Essabbar",address:"26 Derb Lemssid Akibat Lfirane",surface:52,zone:"Aqibat Lfirane",lat:34.06280,lng:-4.97250},
+  {name:"Dar Moradi",address:"64 Derb Lemsid Aqibat Lfirane",surface:69,zone:"Aqibat Lfirane",lat:34.06250,lng:-4.97280},
+  {name:"Dar Hamdani",address:"8 Aqbat Derb Syour Rahbat Zbib",surface:166,zone:"Rahbat Zbib",lat:34.06150,lng:-4.97450},
+  {name:"Dar Naim",address:"31 Derb Benchlouch Rehat Zbib",surface:106,zone:"Rahbat Zbib",lat:34.06180,lng:-4.97420},
+  {name:"Dar Baghdadi",address:"Derb Leben Zkak Rommane",surface:60,zone:"Zkak Rommane",lat:34.06420,lng:-4.97380},
+  {name:"Dar Moustabchir",address:"39 Derbsidi Ahmed Chaoui",surface:60,zone:"Sidi Ahmed Chaoui",lat:34.06200,lng:-4.97150},
+  {name:"Dar Missouri Idrissi",address:"50 Derb Slassi Farrane Kouicha",surface:81,zone:"Farrane Kouicha",lat:34.06100,lng:-4.97050},
+  {name:"Dar Kharrat",address:"13 Derb Sidi Lahkim Aqibat Firan",surface:34,zone:"Aqibat Firan",lat:34.06300,lng:-4.97180},
+  {name:"Dar Bouatrass",address:"34 Rmila Kedddane",surface:62,zone:"Rmila",lat:34.06050,lng:-4.96950},
+  {name:"Dar Guennoune",address:"2 Derb Laarssa Sid Laaouad",surface:64,zone:"Sid Laaouad",lat:34.06450,lng:-4.97050},
+  {name:"Dar Janati",address:"10 Zankat Hajjama Rahbat Lkayss",surface:53,zone:"Rahbat Lkayss",lat:34.06200,lng:-4.97330},
+  {name:"Dar Bouhtouri",address:"23 Ouad Rechacha",surface:108,zone:"Ouad Rechacha",lat:34.06100,lng:-4.97200},
+  {name:"Dar Bensouda",address:"34 Derb Bensouda Aquibat Zarqa",surface:85,zone:"Aqibat Zarqa",lat:34.06150,lng:-4.97100},
+  {name:"Dar ROUASS",address:"55 Aqibat Zarka",surface:60,zone:"Aqibat Zarqa",lat:34.06130,lng:-4.97130},
+  {name:"Dar Hassane",address:"11 Derb Zouiar Bouakda Chra",surface:76,zone:"Bouakda",lat:34.05950,lng:-4.97300},
+];
+
+const zoneInfo = {
+  "Ras Jnane":{desc:"Quartier résidentiel nord près de Bab Guissa. Calme, traditionnel.",tourism:"Modéré",score:3},
+  "Laayoune":{desc:"Centre-ouest, bien desservi. Très recherché pour rénovation.",tourism:"Élevé",score:4},
+  "Sbaa Louyat":{desc:"Carrefour commercial central. Emplacement premium.",tourism:"Très élevé",score:5},
+  "Aqibat Ben Souaf":{desc:"Près de Qarawiyyin, prestigieux, cœur culturel.",tourism:"Très élevé",score:5},
+  "Ain El Khail":{desc:"Résidentiel central, authentique et accessible.",tourism:"Modéré",score:3},
+  "Blida":{desc:"Sud, émergent, bon rapport qualité-prix.",tourism:"Faible-Modéré",score:2},
+  "Aqibat Lfirane":{desc:"Central, bien connecté aux souks.",tourism:"Modéré-Élevé",score:3},
+  "Rahbat Zbib":{desc:"Quartier du marché historique. Excellent pour maison d'hôtes.",tourism:"Élevé",score:4},
+  "Zkak Rommane":{desc:"Près de Talaa Kebira. Très visible, touristique.",tourism:"Élevé",score:4},
+  "Sidi Ahmed Chaoui":{desc:"Résidentiel calme, hors circuits.",tourism:"Faible",score:2},
+  "Farrane Kouicha":{desc:"Près de R'cif. Marchés locaux, accessible.",tourism:"Modéré",score:3},
+  "Aqibat Firan":{desc:"Central, traditionnel.",tourism:"Modéré",score:3},
+  "Rmila":{desc:"Est, intérêt croissant, près tanneries.",tourism:"Modéré",score:3},
+  "Sid Laaouad":{desc:"Résidentiel paisible, proche du centre.",tourism:"Faible-Modéré",score:2},
+  "Rahbat Lkayss":{desc:"Marché aux épices. Premium, très atmosphérique.",tourism:"Très élevé",score:5},
+  "Ouad Rechacha":{desc:"Quartier des canaux. Caractère unique.",tourism:"Faible-Modéré",score:2},
+  "Aqibat Zarqa":{desc:"'Escaliers bleus'. Architecture distinctive.",tourism:"Modéré",score:3},
+  "Bouakda":{desc:"Sud, abordable, investissement long terme.",tourism:"Faible",score:2}
+};
+
+const zoneColors={"Ras Jnane":"#e74c3c","Laayoune":"#e67e22","Sbaa Louyat":"#f1c40f","Aqibat Ben Souaf":"#2ecc71","Ain El Khail":"#1abc9c","Blida":"#3498db","Aqibat Lfirane":"#9b59b6","Rahbat Zbib":"#e91e63","Zkak Rommane":"#00bcd4","Sidi Ahmed Chaoui":"#ff5722","Farrane Kouicha":"#8bc34a","Aqibat Firan":"#ff9800","Rmila":"#607d8b","Sid Laaouad":"#795548","Rahbat Lkayss":"#cddc39","Ouad Rechacha":"#009688","Aqibat Zarqa":"#673ab7","Bouakda":"#4caf50"};
+
+// ==================== VISITING PROGRAM ====================
+const visitDays = [
+  {
+    title:"Demi-journée 1 — Quartier Ras Jnane (Nord)",
+    parking:"Parking Bab Guissa",parkingIdx:1,
+    color:"#e74c3c",
+    riadsIdx:[4,0,1,2,3], // Aicha, Sayeh, CHAKCHAK, Lyoussfi, Dahbi
+    notes:"Cluster de 5 riads très proches. Descente depuis Bab Guissa vers le sud. En profiter pour voir les Tombeaux Mérinides (vue panoramique) avant de descendre.",
+    startTime:"09:00",
+  },
+  {
+    title:"Demi-journée 2 — Quartier Laayoune (Centre-Ouest)",
+    parking:"Parking Bab Bou Jeloud",parkingIdx:0,
+    color:"#e67e22",
+    riadsIdx:[9,8,7,5,6], // Yaakoubi, Boussaadani, Mellouki1, Raiss Med, Benkirane
+    notes:"5 riads dans le quartier Laayoune. Accès par Talaa Kebira depuis Bab Bou Jeloud. Zone très demandée pour rénovation. En chemin : Médersa Bou Inania, Fondouk Nejjarine.",
+    startTime:"09:00",
+  },
+  {
+    title:"Demi-journée 3 — Centre historique (Zbib, Lkayss, Sbaa Louyat)",
+    parking:"Parking Bab Bou Jeloud",parkingIdx:0,
+    color:"#e91e63",
+    riadsIdx:[16,17,24,10,11,18], // Hamdani, Naim, Janati, Benjelloune, Mellouki2, Baghdadi
+    notes:"6 riads dans le cœur touristique. C'est le secteur le plus premium. Parcours via Talaa Sghira. Monuments en route : Zaouïa Moulay Idriss, Souk Attarine, Qarawiyyin.",
+    startTime:"09:00",
+  },
+  {
+    title:"Demi-journée 4 — Centre-Est (Lfirane, Firan, Chaoui)",
+    parking:"Parking Place R'cif",parkingIdx:2,
+    color:"#9b59b6",
+    riadsIdx:[14,15,21,19,12], // Essabbar, Moradi, Kharrat, Moustabchir, Bni Hya
+    notes:"5 riads dans la zone centrale-est. Accès par R'cif et remontée vers le nord. En chemin : Place Seffarine, Médersa Cherratine. Dar Bni Hya est le plus au nord, à visiter en dernier.",
+    startTime:"14:00",
+  },
+  {
+    title:"Demi-journée 5 — Est (Kouicha, Rmila, Zarqa, Laaouad)",
+    parking:"Parking Place R'cif",parkingIdx:2,
+    color:"#673ab7",
+    riadsIdx:[22,20,27,26,23], // Bouatrass, Missouri, ROUASS, Bensouda, Guennoune
+    notes:"5 riads dans le secteur est. Départ de R'cif. Vue sur les Tanneries Chouara en route. Quartiers en développement avec bon potentiel de valorisation.",
+    startTime:"14:00",
+  },
+  {
+    title:"Demi-journée 6 — Sud (Blida, Rechacha, Bouakda)",
+    parking:"Parking Ain Azliten",parkingIdx:3,
+    color:"#3498db",
+    riadsIdx:[13,25,28], // Benwahoude, Bouhtouri, Hassane
+    notes:"3 riads dans les quartiers sud. Demi-journée courte, idéale pour un matin avant un départ. Quartiers plus locaux, prix d'achat potentiellement plus bas.",
+    startTime:"10:00",
+  },
+];
+
+// ==================== UTILITIES ====================
+const shortlisted=new Set();const riadMarkers={};const monumentMarkersList=[];const parkingMarkersList=[];const hotspotMarkersList=[];
+let circuitLayer1,circuitLayer2;const visitRouteLines=[];let currentSort='score';let showLabels=true;
+
+function hav(a,b,c,d){const R=6371000,dL=(c-a)*Math.PI/180,dG=(d-b)*Math.PI/180,x=Math.sin(dL/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dG/2)**2;return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))}
+function wDist(a,b,c,d){return Math.round(hav(a,b,c,d)*1.8)}
+function wTime(m){return Math.max(1,Math.round(m/50))}
+function dPoly(lat,lng,poly){let min=1e9;for(let i=0;i<poly.length;i++)min=Math.min(min,hav(lat,lng,poly[i][0],poly[i][1]));return Math.round(min*1.5)}
+
+function nearestMonument(r){let b=null,bd=1e9;for(const m of monuments){const d=wDist(r.lat,r.lng,m.lat,m.lng);if(d<bd){bd=d;b=m}}return{m:b,d:bd,t:wTime(bd)}}
+function nearest3Mon(r){return monuments.map(m=>({m,d:wDist(r.lat,r.lng,m.lat,m.lng)})).sort((a,b)=>a.d-b.d).slice(0,3).map(x=>({...x,t:wTime(x.d)}))}
+function nearestParking(r){let b=null,bd=1e9;for(const p of parkings){const d=wDist(r.lat,r.lng,p.lat,p.lng);if(d<bd){bd=d;b=p}}return{p:b,d:bd,t:wTime(bd)}}
+function nearestHotspot(r){let b=null,bd=1e9;for(const h of hotspots){const d=wDist(r.lat,r.lng,h.lat,h.lng);if(d<bd){bd=d;b=h}}return{h:b,d:bd,t:wTime(bd)}}
+function circuitDist(r){const d1=dPoly(r.lat,r.lng,circuitPrincipal),d2=dPoly(r.lat,r.lng,circuitSecondaire);return{p:d1,s:d2,best:Math.min(d1,d2)}}
+
+function investScore(r){
+  const zs=zoneInfo[r.zone]?.score||2;
+  let ss=r.surface>=120?5:r.surface>=90?4:r.surface>=60?3:r.surface>=45?2:1;
+  const nm=nearestMonument(r);let ms=nm.d<150?5:nm.d<300?4:nm.d<500?3:nm.d<800?2:1;
+  const cd=circuitDist(r);let cs=cd.best<100?5:cd.best<200?4:cd.best<400?3:cd.best<600?2:1;
+  const np=nearestParking(r);let ps=np.d<300?5:np.d<500?4:np.d<800?3:np.d<1200?2:1;
+  const nh=nearestHotspot(r);let hs=nh.d<100?5:nh.d<200?4:nh.d<400?3:nh.d<600?2:1;
+  return Math.round(zs*0.2+ss*0.2+ms*0.2+cs*0.15+ps*0.15+hs*0.1);
+}
+
+const rgcN={1:{room:12,acc:10,cui:0},2:{room:14,acc:10,cui:0},3:{room:16,acc:15,cui:8},4:{room:20,acc:20,cui:10},5:{room:25,acc:25,cui:10}};
+function rgcRooms(s,st){const n=rgcN[st],p=s*.2,u=s*2-p*2,c=n.acc+5+n.cui;return Math.min(Math.max(0,Math.floor((u-c)/n.room)),10)}
+function maxStar(s){for(let i=5;i>=1;i--)if(rgcRooms(s,i)>=4)return i;return 0}
+function getSizeCat(s){return s<60?{l:"Petit",c:"size-small"}:s<90?{l:"Moyen",c:"size-medium"}:s<120?{l:"Grand",c:"size-large"}:{l:"XL",c:"size-xlarge"}}
+function getSurfCol(s){return s<60?"#ff9800":s<90?"#4caf50":s<120?"#2196f3":"#ce93d8"}
+function dCls(d){return d<250?"popup-dist-close":d<500?"popup-dist-mid":"popup-dist-far"}
+
+function createRiadIcon(r,isSh){
+  const col=isSh?'#4caf50':zoneColors[r.zone];const sz=Math.max(12,Math.min(26,8+r.surface/8));
+  const lab=showLabels?`<div class="marker-label">${r.name.replace('Dar ','')}</div>`:'';
+  return L.divIcon({className:'custom-marker',html:`<div style="width:${sz}px;height:${sz}px;background:${col};border:2px solid rgba(255,255,255,.9);border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,.6),0 0 12px ${col}44;position:relative;">${lab}</div>`,iconSize:[sz,sz],iconAnchor:[sz/2,sz/2],popupAnchor:[0,-sz/2-4]})
+}
+function createMonumentIcon(m){
+  return L.divIcon({className:'custom-marker',html:`<div style="position:relative;"><div style="width:18px;height:18px;background:#ffc107;border:2px solid #b8860b;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px;box-shadow:0 2px 6px rgba(0,0,0,.5);transform:rotate(45deg);"><span style="transform:rotate(-45deg);">🏛</span></div><div style="position:absolute;white-space:nowrap;font-size:8px;font-weight:700;color:#ffc107;text-shadow:0 1px 3px rgba(0,0,0,.9);left:50%;top:100%;transform:translate(-50%,2px);">${m.short}</div></div>`,iconSize:[18,18],iconAnchor:[9,9],popupAnchor:[0,-12]})
+}
+function createParkingIcon(p){
+  return L.divIcon({className:'custom-marker',html:`<div style="position:relative;"><div style="width:20px;height:20px;background:#ef5350;border:2px solid #c62828;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.5);font-family:Inter,sans-serif;">P</div><div style="position:absolute;white-space:nowrap;font-size:7px;font-weight:700;color:#ef5350;text-shadow:0 1px 3px rgba(0,0,0,.9);left:50%;top:100%;transform:translate(-50%,2px);">${p.short}</div></div>`,iconSize:[20,20],iconAnchor:[10,10],popupAnchor:[0,-14]})
+}
+function createHotspotIcon(h){
+  return L.divIcon({className:'custom-marker',html:`<div style="position:relative;"><div style="width:16px;height:16px;background:rgba(255,255,255,.15);border:1.5px solid #ff9800;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;box-shadow:0 2px 6px rgba(0,0,0,.4);">${h.icon}</div><div style="position:absolute;white-space:nowrap;font-size:7px;font-weight:600;color:#ff9800;text-shadow:0 1px 3px rgba(0,0,0,.9);left:50%;top:100%;transform:translate(-50%,2px);">${h.short}</div></div>`,iconSize:[16,16],iconAnchor:[8,8],popupAnchor:[0,-12]})
+}
+
+// ==================== MAP ====================
+const satL=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:20});
+const hybL=L.layerGroup([L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:20}),L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',{maxZoom:20})]);
+const drkL=L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:20});
+const strL=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19});
+const layers={satellite:satL,hybrid:hybL,dark:drkL,street:strL};
+const map=L.map('map',{center:[34.0625,-4.9730],zoom:16,zoomControl:false,layers:[satL]});
+L.control.zoom({position:'bottomright'}).addTo(map);
+document.querySelectorAll('.layer-btn').forEach(b=>{b.addEventListener('click',()=>{document.querySelectorAll('.layer-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');Object.values(layers).forEach(l=>map.removeLayer(l));layers[b.dataset.layer].addTo(map)})});
+
+// Circuits
+circuitLayer1=L.polyline(circuitPrincipal,{color:'#00bcd4',weight:4,opacity:.8,dashArray:'10,6'}).addTo(map).bindPopup('<div class="popup-name">Circuit Touristique Principal</div><div class="popup-address">Bab Bou Jeloud → Talaa Kebira → Qarawiyyin → Tanneries</div>');
+circuitLayer2=L.polyline(circuitSecondaire,{color:'#4caf50',weight:3,opacity:.7,dashArray:'6,8'}).addTo(map).bindPopup('<div class="popup-name">Circuit Secondaire</div><div class="popup-address">Bab Bou Jeloud → Talaa Sghira → Rahbat Zbib → R\'cif</div>');
+
+// Monument markers
+monuments.forEach(m=>{const mk=L.marker([m.lat,m.lng],{icon:createMonumentIcon(m),zIndexOffset:200}).addTo(map);mk.bindPopup(`<div class="popup-name" style="color:#ffc107">${m.name}</div><div class="popup-address">${m.type}</div><p style="font-size:10px;color:#9a8d7f;margin-top:5px;">${m.desc}</p>`);monumentMarkersList.push(mk)});
+
+// Parking markers
+parkings.forEach(p=>{const mk=L.marker([p.lat,p.lng],{icon:createParkingIcon(p),zIndexOffset:300}).addTo(map);mk.bindPopup(`<div class="popup-name" style="color:#ef5350">🅿️ ${p.name}</div><div class="popup-address">Capacité : ${p.capacity} · Accès : ${p.access}</div><p style="font-size:10px;color:#9a8d7f;margin-top:5px;">${p.desc}</p>`);parkingMarkersList.push(mk)});
+
+// Hotspot markers
+hotspots.forEach(h=>{const mk=L.marker([h.lat,h.lng],{icon:createHotspotIcon(h),zIndexOffset:100}).addTo(map);mk.bindPopup(`<div class="popup-name" style="color:#ff9800">${h.icon} ${h.name}</div><div class="popup-address">${h.cat}</div><p style="font-size:10px;color:#9a8d7f;margin-top:5px;">${h.desc}</p>`);hotspotMarkersList.push(mk)});
+
+// Riad markers
+riads.forEach((r,i)=>{
+  const mk=L.marker([r.lat,r.lng],{icon:createRiadIcon(r,false),zIndexOffset:500}).addTo(map);
+  const sc=investScore(r),n3=nearest3Mon(r),cd=circuitDist(r),np=nearestParking(r),nh=nearestHotspot(r),star=maxStar(r.surface);
+  let dH='';n3.forEach(n=>dH+=`<div class="popup-dist-row"><span class="popup-dist-name">🏛️ ${n.m.short}</span><span class="${dCls(n.d)}">${n.d}m · ${n.t}min</span></div>`);
+  dH+=`<div class="popup-dist-row" style="margin-top:3px;padding-top:3px;border-top:1px solid rgba(196,164,120,.1)"><span class="popup-dist-name">🅿️ ${np.p.short}</span><span class="${dCls(np.d)}">${np.d}m · ${np.t}min</span></div>`;
+  dH+=`<div class="popup-dist-row"><span class="popup-dist-name">⭐ ${nh.h.short}</span><span class="${dCls(nh.d)}">${nh.d}m · ${nh.t}min</span></div>`;
+  dH+=`<div class="popup-dist-row"><span class="popup-dist-name">🔵 Circuit princ.</span><span class="${dCls(cd.p)}">${cd.p}m · ${wTime(cd.p)}min</span></div>`;
+  const gmUrl=`https://www.google.com/maps/search/${encodeURIComponent(r.address+' Fès Médina Maroc')}`;
+  const starTxt=star>0?star+'★ ('+rgcRooms(r.surface,star)+' ch.)':'Non classable';
+  const starCol=star>=4?'#4caf50':star>=2?'#ffc107':'#ff9800';
+  mk.bindPopup(`<div class="popup-name">${r.name}</div><div class="popup-address">${r.address}</div><div class="popup-grid"><div class="popup-stat"><div class="pval">${r.surface}</div><div class="plbl">Surface m²</div></div><div class="popup-stat"><div class="pval" style="color:${starCol}">${starTxt}</div><div class="plbl">Standing RGC</div></div><div class="popup-stat"><div class="pval">${sc}/5</div><div class="plbl">Score invest.</div></div></div><div class="popup-distances">${dH}</div><div class="popup-tags"><span class="popup-tag popup-zone-tag">${r.zone}</span></div><div class="popup-links"><a href="${gmUrl}" target="_blank" class="popup-link popup-gmaps">Google Maps</a></div>`,{maxWidth:300});
+  mk.on('click',()=>showZoneInfo(r.zone));riadMarkers[i]=mk
+});
+
+// Visit route lines (hidden by default)
+const visitColors=['#e74c3c','#e67e22','#e91e63','#9b59b6','#673ab7','#3498db'];
+visitDays.forEach((day,di)=>{
+  const pts=[[parkings[day.parkingIdx].lat,parkings[day.parkingIdx].lng]];
+  day.riadsIdx.forEach(ri=>pts.push([riads[ri].lat,riads[ri].lng]));
+  const line=L.polyline(pts,{color:visitColors[di],weight:3,opacity:.9,dashArray:'5,8'});
+  // Add numbered circles at each stop
+  const group=L.layerGroup([line]);
+  day.riadsIdx.forEach((ri,si)=>{
+    const cm=L.circleMarker([riads[ri].lat,riads[ri].lng],{radius:8,color:visitColors[di],fillColor:visitColors[di],fillOpacity:.9,weight:2});
+    cm.bindTooltip(`${si+1}`,{permanent:true,direction:'center',className:'visit-number-tooltip'});
+    group.addLayer(cm)
+  });
+  visitRouteLines.push(group)
+});
+
+// ==================== TOGGLES ====================
+document.getElementById('tog-monuments').addEventListener('change',e=>{monumentMarkersList.forEach(m=>e.target.checked?m.addTo(map):map.removeLayer(m))});
+document.getElementById('tog-parkings').addEventListener('change',e=>{parkingMarkersList.forEach(m=>e.target.checked?m.addTo(map):map.removeLayer(m))});
+document.getElementById('tog-hotspots').addEventListener('change',e=>{hotspotMarkersList.forEach(m=>e.target.checked?m.addTo(map):map.removeLayer(m))});
+document.getElementById('tog-circuit').addEventListener('change',e=>{e.target.checked?circuitLayer1.addTo(map):map.removeLayer(circuitLayer1)});
+document.getElementById('tog-circuit2').addEventListener('change',e=>{e.target.checked?circuitLayer2.addTo(map):map.removeLayer(circuitLayer2)});
+document.getElementById('tog-labels').addEventListener('change',e=>{showLabels=e.target.checked;riads.forEach((r,i)=>riadMarkers[i].setIcon(createRiadIcon(r,shortlisted.has(i))))});
+document.getElementById('tog-visitroutes').addEventListener('change',e=>{visitRouteLines.forEach(l=>e.target.checked?l.addTo(map):map.removeLayer(l))});
+
+// ==================== TABS ====================
+document.querySelectorAll('.tab').forEach(t=>{t.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));t.classList.add('active');document.getElementById('tab-'+t.dataset.tab).classList.add('active')})});
+
+// ==================== HOTSPOTS TAB ====================
+function buildHotspotsTab(){
+  const c=document.getElementById('tab-hotspots');
+  let h='<div class="hotspot-section-title">🏛️ Monuments ('+monuments.length+')</div>';
+  monuments.forEach((m,i)=>h+=`<div class="monument-card" onclick="map.flyTo([${m.lat},${m.lng}],18);monumentMarkersList[${i}].openPopup()"><div class="monument-name">${m.name}</div><div class="monument-type">${m.type}</div><div class="monument-desc">${m.desc}</div></div>`);
+  h+='<div class="hotspot-section-title">🅿️ Parkings & Accès ('+parkings.length+')</div>';
+  parkings.forEach((p,i)=>h+=`<div class="monument-card" onclick="map.flyTo([${p.lat},${p.lng}],17);parkingMarkersList[${i}].openPopup()"><div class="monument-name" style="color:#ef5350">🅿️ ${p.name}</div><div class="monument-type">${p.access} · ${p.capacity}</div><div class="monument-desc">${p.desc}</div></div>`);
+  h+='<div class="hotspot-section-title">⭐ Points d\'intérêt ('+hotspots.length+')</div>';
+  hotspots.forEach((s,i)=>h+=`<div class="monument-card" onclick="map.flyTo([${s.lat},${s.lng}],18);hotspotMarkersList[${i}].openPopup()"><div class="monument-name" style="color:#ff9800">${s.icon} ${s.name}</div><div class="monument-desc">${s.desc}</div></div>`);
+  c.innerHTML=h
+}
+
+// ==================== VISIT PROGRAM TAB ====================
+function buildVisitsTab(){
+  const c=document.getElementById('tab-visits');
+  let h=`<div style="padding:10px 12px;border-bottom:1px solid rgba(196,164,120,.1)"><p style="font-size:11px;color:#c4a478;font-weight:600;margin-bottom:4px;">Programme de Visites — 6 demi-journées</p><p style="font-size:9px;color:#8a7a68;line-height:1.5;">29 riads répartis en 6 sessions optimisées par proximité géographique. 15 min par visite. Activez « Routes de visite » dans les options de la carte pour voir les itinéraires.</p></div>`;
+
+  visitDays.forEach((day,di)=>{
+    const rList=day.riadsIdx.map(i=>riads[i]);
+    let totalWalk=0;
+    // Walking distances between consecutive stops
+    const pk=parkings[day.parkingIdx];
+    let prevLat=pk.lat,prevLng=pk.lng;
+    const legs=[];
+    rList.forEach(r=>{const d=wDist(prevLat,prevLng,r.lat,r.lng);legs.push(d);totalWalk+=d;prevLat=r.lat;prevLng=r.lng});
+    const totalVisitMin=rList.length*15;
+    const totalWalkMin=wTime(totalWalk);
+    const totalMin=totalVisitMin+totalWalkMin;
+    const endH=parseInt(day.startTime.split(':')[0]);const endM=parseInt(day.startTime.split(':')[1])+totalMin;
+    const endTime=`${endH+Math.floor(endM/60)}:${String(endM%60).padStart(2,'0')}`;
+
+    h+=`<div class="visit-day">
+      <div class="visit-day-header" style="border-left:3px solid ${visitColors[di]}" onclick="showVisitRoute(${di})">
+        <div><div class="visit-day-title">${day.title}</div><div class="visit-day-meta">${rList.length} riads · ${day.startTime}–${endTime}</div></div>
+        <div style="text-align:right"><div style="font-size:12px;font-weight:700;color:${visitColors[di]}">${totalMin} min</div><div style="font-size:8px;color:#6a5d50">~${Math.round(totalWalk)}m marche</div></div>
+      </div>
+      <div class="visit-day-body">
+        <div class="visit-step step-parking"><div class="visit-step-dot">P</div><div class="visit-step-content"><div class="visit-step-title">🅿️ ${day.parking}</div><div class="visit-step-desc">${pk.desc.split('.')[0]}.</div><div class="visit-step-time">${day.startTime} — Stationnement</div></div></div>`;
+
+    let cumMin=0;
+    rList.forEach((r,ri)=>{
+      const walkMin=wTime(legs[ri]);cumMin+=walkMin;
+      const arrH=parseInt(day.startTime.split(':')[0]);const arrM=parseInt(day.startTime.split(':')[1])+cumMin;
+      const arrTime=`${arrH+Math.floor(arrM/60)}:${String(arrM%60).padStart(2,'0')}`;
+      h+=`<div class="visit-step step-walk"><div class="visit-step-dot">↓</div><div class="visit-step-content"><div class="visit-step-desc" style="color:#00bcd4">Marche ~${legs[ri]}m · ${walkMin} min</div></div></div>`;
+      h+=`<div class="visit-step step-visit"><div class="visit-step-dot">${ri+1}</div><div class="visit-step-content"><div class="visit-step-title">${r.name} <span style="color:#c4a478;font-size:10px;">(${r.surface} m²)</span></div><div class="visit-step-desc">${r.address} · ${r.zone}</div><div class="visit-step-time">${arrTime} — Visite 15 min</div></div></div>`;
+      cumMin+=15
+    });
+
+    h+=`</div>
+      <div class="visit-summary"><span>${day.notes}</span></div>
+      <div style="padding:6px 12px 10px;"><button class="visit-show-route" onclick="showVisitRoute(${di})">📍 Afficher le parcours sur la carte</button></div>
+    </div>`;
+  });
+
+  h+=`<div style="padding:12px;"><div style="background:rgba(76,175,80,.08);border:1px solid rgba(76,175,80,.2);border-radius:8px;padding:12px;">
+    <p style="font-size:11px;color:#4caf50;font-weight:600;margin-bottom:6px;">Conseils pratiques</p>
+    <p style="font-size:9px;color:#8a7a68;line-height:1.6;">• Commencer tôt le matin (8h-9h) quand la médina est calme<br>• Porter des chaussures confortables (ruelles pavées, escaliers)<br>• Prendre un guide local pour les premières visites (50-100 MAD/demi-journée)<br>• Prévoir de l'eau et des espèces (pas de distributeurs dans la médina)<br>• Les demi-journées 1 et 2 peuvent être combinées en une journée complète<br>• Les demi-journées 4 et 5 aussi (même parking R'cif)</p>
+  </div></div>`;
+
+  c.innerHTML=h
+}
+
+function showVisitRoute(dayIdx){
+  visitRouteLines.forEach(l=>map.removeLayer(l));
+  visitRouteLines[dayIdx].addTo(map);
+  document.getElementById('tog-visitroutes').checked=true;
+  const day=visitDays[dayIdx];
+  const pts=[[parkings[day.parkingIdx].lat,parkings[day.parkingIdx].lng],...day.riadsIdx.map(i=>[riads[i].lat,riads[i].lng])];
+  map.flyToBounds(L.latLngBounds(pts).pad(0.3),{duration:.8});
+}
+
+// ==================== SIDEBAR PROPERTIES ====================
+function buildSidebar(filter='',sortBy=currentSort){
+  const sb=document.getElementById('tab-riads');
+  let sorted=riads.map((r,i)=>{const nm=nearestMonument(r),cd=circuitDist(r),np=nearestParking(r),nh=nearestHotspot(r);return{...r,idx:i,score:investScore(r),nm,cd,np,nh}});
+  if(filter){const f=filter.toLowerCase();sorted=sorted.filter(r=>r.name.toLowerCase().includes(f)||r.address.toLowerCase().includes(f)||r.zone.toLowerCase().includes(f))}
+  if(sortBy==='surface-desc')sorted.sort((a,b)=>b.surface-a.surface);
+  else if(sortBy==='monument')sorted.sort((a,b)=>a.nm.d-b.nm.d);
+  else if(sortBy==='circuit')sorted.sort((a,b)=>a.cd.best-b.cd.best);
+  else if(sortBy==='parking')sorted.sort((a,b)=>a.np.d-b.np.d);
+  else if(sortBy==='score')sorted.sort((a,b)=>b.score-a.score||b.surface-a.surface);
+  else sorted.sort((a,b)=>a.zone.localeCompare(b.zone)||b.surface-a.surface);
+
+  const mx=Math.max(...riads.map(r=>r.surface));
+  let h=`<div class="filter-bar"><input type="text" id="search-input" placeholder="Rechercher..." value="${filter}"><div class="sort-buttons">
+    <button class="sort-btn ${sortBy==='score'?'active':''}" data-sort="score">Meilleurs</button>
+    <button class="sort-btn ${sortBy==='monument'?'active':''}" data-sort="monument">Monument</button>
+    <button class="sort-btn ${sortBy==='circuit'?'active':''}" data-sort="circuit">Circuit</button>
+    <button class="sort-btn ${sortBy==='parking'?'active':''}" data-sort="parking">Parking</button>
+    <button class="sort-btn ${sortBy==='surface-desc'?'active':''}" data-sort="surface-desc">Surface</button>
+    <button class="sort-btn ${sortBy==='zone'?'active':''}" data-sort="zone">Quartier</button>
+  </div></div>`;
+
+  sorted.forEach(r=>{
+    const sz=getSizeCat(r.surface),pct=(r.surface/mx*100).toFixed(0),isSh=shortlisted.has(r.idx),sc=r.score;
+    let dots='';for(let i=0;i<5;i++)dots+=`<div class="score-dot ${i<sc?(sc>=4?'high':'filled'):''}"></div>`;
+    h+=`<div class="riad-card ${isSh?'shortlisted':''}" data-idx="${r.idx}">
+      <div class="riad-name"><span>${r.name}</span><span class="size-category ${sz.c}">${sz.l}</span></div>
+      <div class="riad-address">${r.address}</div>
+      <div class="riad-meta"><span class="riad-surface">${r.surface} m²</span><div class="riad-surface-bar"><div class="riad-surface-fill" style="width:${pct}%;background:${getSurfCol(r.surface)}"></div></div></div>
+      <div class="riad-distances">
+        <span class="dist-tag" style="background:${maxStar(r.surface)>=4?'rgba(76,175,80,.15);border-color:rgba(76,175,80,.3);color:#4caf50':maxStar(r.surface)>=2?'rgba(255,193,7,.15);border-color:rgba(255,193,7,.3);color:#ffc107':'rgba(255,152,0,.15);border-color:rgba(255,152,0,.3);color:#ff9800'}">${maxStar(r.surface)>0?maxStar(r.surface)+'★ '+rgcRooms(r.surface,maxStar(r.surface))+'ch.':'N/C'}</span>
+        <span class="dist-tag dist-monument">🏛️ ${r.nm.m.short} ${r.nm.d}m</span>
+        <span class="dist-tag dist-parking">🅿️ ${r.np.p.short} ${r.np.d}m</span>
+        <span class="dist-tag dist-circuit">🔵 ${r.cd.best}m</span>
+      </div>
+      <div class="riad-score"><div class="score-bar">${dots}</div><span class="score-label">${sc}/5</span></div>
+      <div class="riad-actions">
+        <button class="riad-btn shortlist-btn ${isSh?'active':''}" data-idx="${r.idx}">${isSh?'✓':''} Présél.</button>
+        <button class="riad-btn gmaps-btn" data-idx="${r.idx}">Maps</button>
+      </div>
+    </div>`
+  });
+  sb.innerHTML=h;bindSidebarEvents()
+}
+
+function bindSidebarEvents(){
+  document.getElementById('search-input')?.addEventListener('input',e=>buildSidebar(e.target.value,currentSort));
+  document.querySelectorAll('.sort-btn').forEach(b=>b.addEventListener('click',()=>{currentSort=b.dataset.sort;buildSidebar(document.getElementById('search-input')?.value||'',currentSort)}));
+  document.querySelectorAll('.riad-card').forEach(c=>c.addEventListener('click',e=>{if(e.target.closest('.riad-btn'))return;const i=parseInt(c.dataset.idx);map.flyTo([riads[i].lat,riads[i].lng],18,{duration:.8});riadMarkers[i].openPopup();showZoneInfo(riads[i].zone)}));
+  document.querySelectorAll('.shortlist-btn').forEach(b=>b.addEventListener('click',()=>toggleShortlist(parseInt(b.dataset.idx))));
+  document.querySelectorAll('.gmaps-btn').forEach(b=>b.addEventListener('click',()=>{const r=riads[parseInt(b.dataset.idx)];window.open(`https://www.google.com/maps/search/${encodeURIComponent(r.address+' Fès Médina Maroc')}`,'_blank')}))
+}
+
+function toggleShortlist(i){shortlisted.has(i)?shortlisted.delete(i):shortlisted.add(i);riadMarkers[i].setIcon(createRiadIcon(riads[i],shortlisted.has(i)));document.getElementById('shortlist-count').textContent=shortlisted.size;updateShortlistPanel();buildSidebar(document.getElementById('search-input')?.value||'',currentSort)}
+function updateShortlistPanel(){const p=document.getElementById('shortlist-panel');if(!shortlisted.size){p.classList.remove('visible');return}p.classList.add('visible');let h='',ts=0;shortlisted.forEach(i=>{ts+=riads[i].surface;h+=`<div class="shortlist-item">${riads[i].name} — ${riads[i].surface} m²</div>`});document.getElementById('shortlist-list').innerHTML=h;document.getElementById('shortlist-total').textContent=`${shortlisted.size} riads · ${ts} m²`}
+function showZoneInfo(zone){const p=document.getElementById('zone-info'),info=zoneInfo[zone];if(!info)return;const zr=riads.filter(r=>r.zone===zone),ts=zr.reduce((s,r)=>s+r.surface,0);let stars='';for(let i=0;i<5;i++)stars+=i<info.score?'★':'☆';p.innerHTML=`<h3 style="color:${zoneColors[zone]}">${zone}</h3><p>${info.desc}</p><p><strong style="color:#c4a478">Tourisme :</strong> ${info.tourism}</p><p><strong style="color:#c4a478">Note :</strong> <span style="color:#f1c40f">${stars}</span></p><div class="zone-stats"><div class="zone-stat-item"><div class="stat-val">${zr.length}</div><div class="stat-lbl">Propriétés</div></div><div class="zone-stat-item"><div class="stat-val">${ts}</div><div class="stat-lbl">m² total</div></div></div>`;p.classList.add('visible')}
+
+// ==================== LEGEND ====================
+const legC=document.getElementById('legend-items');
+[...new Set(riads.map(r=>r.zone))].sort().forEach(z=>{const it=document.createElement('div');it.className='legend-item';it.innerHTML=`<div class="legend-dot" style="background:${zoneColors[z]}"></div>${z} (${riads.filter(r=>r.zone===z).length})`;it.addEventListener('click',()=>{const zr=riads.filter(r=>r.zone===z);map.flyToBounds(L.latLngBounds(zr.map(r=>[r.lat,r.lng])).pad(.5),{duration:.8});showZoneInfo(z)});legC.appendChild(it)});
+
+// Label zoom
+map.on('zoomend',()=>{const nl=map.getZoom()>=16;if(nl!==showLabels&&document.getElementById('tog-labels').checked){showLabels=nl;riads.forEach((r,i)=>riadMarkers[i].setIcon(createRiadIcon(r,shortlisted.has(i))))}});
+
+// Init
+buildSidebar();buildHotspotsTab();buildVisitsTab();
+map.on('click',()=>document.getElementById('zone-info').classList.remove('visible'));
+</script>
+<style>.visit-number-tooltip{background:transparent!important;border:none!important;box-shadow:none!important;color:#fff!important;font-weight:900!important;font-size:9px!important;font-family:Inter,sans-serif!important}.visit-number-tooltip::before{display:none!important}</style>
+</body>
+</html>

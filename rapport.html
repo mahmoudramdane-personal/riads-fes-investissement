@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rapport d'Investissement — Riads Médina de Fès</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+  @page { margin: 20mm 18mm; size: A4; }
+  @media print {
+    body { background: #fff !important; }
+    .no-print { display: none !important; }
+    .page-break { page-break-before: always; }
+    .riad-detail { page-break-inside: avoid; }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #f8f6f3;
+    color: #2c2520;
+    line-height: 1.6;
+  }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+
+  /* Cover */
+  .cover {
+    text-align: center;
+    padding: 80px 40px;
+    background: linear-gradient(135deg, #1a1410 0%, #2a1f15 40%, #3a2a1a 100%);
+    color: #e8e0d4;
+    margin: -40px -20px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L60 30L30 60L0 30Z' fill='none' stroke='%23c4a47815' stroke-width='0.5'/%3E%3C/svg%3E");
+    opacity: 0.5;
+  }
+  .cover-content { position: relative; z-index: 1; }
+  .cover h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 38px;
+    font-weight: 700;
+    color: #c4a478;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+  .cover h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 400;
+    color: #a08a6e;
+    margin-bottom: 30px;
+  }
+  .cover-line {
+    width: 80px; height: 2px;
+    background: linear-gradient(90deg, transparent, #c4a478, transparent);
+    margin: 0 auto 30px;
+  }
+  .cover-stats {
+    display: flex; justify-content: center; gap: 50px; margin-top: 40px;
+  }
+  .cover-stat .csv { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 700; color: #c4a478; }
+  .cover-stat .csl { font-size: 11px; color: #8a7a68; text-transform: uppercase; letter-spacing: 2px; margin-top: 4px; }
+  .cover-date { font-size: 12px; color: #6a5d50; margin-top: 30px; letter-spacing: 1px; }
+
+  /* Print button */
+  .print-bar {
+    position: fixed; top: 40px; left: 0; right: 0; z-index: 1000;
+    background: rgba(26,20,16,0.95); backdrop-filter: blur(8px);
+    padding: 10px 20px; display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid rgba(196,164,120,0.3);
+  }
+  .print-bar span { color: #c4a478; font-size: 13px; font-weight: 500; }
+  .print-btn {
+    background: #c4a478; border: none; border-radius: 6px; padding: 8px 24px;
+    color: #1a1410; font-weight: 600; font-size: 13px; cursor: pointer;
+    font-family: 'Inter', sans-serif; transition: background 0.2s;
+  }
+  .print-btn:hover { background: #d4b488; }
+
+  /* Sections */
+  .section { margin-bottom: 40px; }
+  .section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px; font-weight: 700;
+    color: #2c2520; margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #c4a478;
+  }
+  .section h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px; font-weight: 600;
+    color: #4a3f35; margin: 20px 0 10px;
+  }
+  .section p { font-size: 13px; color: #4a3f35; margin-bottom: 8px; }
+
+  /* Summary table */
+  .summary-table {
+    width: 100%; border-collapse: collapse; margin: 16px 0;
+    font-size: 11px;
+  }
+  .summary-table th {
+    background: #2c2520; color: #c4a478;
+    padding: 8px 10px; text-align: left;
+    font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; font-size: 9px;
+    position: sticky; top: 44px;
+  }
+  .summary-table td {
+    padding: 7px 10px; border-bottom: 1px solid #e8e0d4;
+    vertical-align: middle;
+  }
+  .summary-table tr:hover { background: rgba(196,164,120,0.08); }
+  .summary-table .rank-cell {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px; font-weight: 700; color: #c4a478;
+    text-align: center; width: 36px;
+  }
+  .summary-table .name-cell { font-weight: 600; color: #2c2520; }
+  .summary-table .score-cell { text-align: center; }
+
+  .score-badge {
+    display: inline-block; padding: 2px 8px; border-radius: 10px;
+    font-weight: 700; font-size: 11px;
+  }
+  .score-5 { background: #e8f5e9; color: #2e7d32; }
+  .score-4 { background: #f1f8e9; color: #558b2f; }
+  .score-3 { background: #fff8e1; color: #f9a825; }
+  .score-2 { background: #fff3e0; color: #ef6c00; }
+  .score-1 { background: #fce4ec; color: #c62828; }
+
+  .dist-badge {
+    font-size: 10px; padding: 1px 6px; border-radius: 8px;
+  }
+  .dist-close { background: #e8f5e9; color: #2e7d32; }
+  .dist-mid { background: #fff8e1; color: #f9a825; }
+  .dist-far { background: #fff3e0; color: #ef6c00; }
+
+  /* Riad detail cards */
+  .riad-detail {
+    background: #fff;
+    border: 1px solid #e8e0d4;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .riad-detail-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 14px; padding-bottom: 14px;
+    border-bottom: 1px solid #f0ebe5;
+  }
+  .riad-detail-rank {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px; font-weight: 800;
+    color: #c4a478; line-height: 1;
+    min-width: 40px;
+  }
+  .riad-detail-title {
+    flex: 1; margin-left: 16px;
+  }
+  .riad-detail-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px; font-weight: 700;
+    color: #2c2520; margin-bottom: 2px;
+  }
+  .riad-detail-address {
+    font-size: 12px; color: #8a7a68;
+  }
+  .riad-detail-score {
+    text-align: center;
+  }
+  .riad-detail-score .big-score {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px; font-weight: 800;
+  }
+  .riad-detail-score .score-label {
+    font-size: 9px; color: #8a7a68; text-transform: uppercase; letter-spacing: 1px;
+  }
+
+  .detail-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    margin-bottom: 14px;
+  }
+  .detail-box {
+    background: #faf8f5; border-radius: 8px; padding: 12px;
+  }
+  .detail-box h4 {
+    font-size: 9px; color: #8a7a68; text-transform: uppercase;
+    letter-spacing: 1.5px; margin-bottom: 8px;
+  }
+  .detail-box .dval {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px; font-weight: 700; color: #2c2520;
+  }
+  .detail-box .dsub { font-size: 11px; color: #6a5d50; margin-top: 2px; }
+
+  .detail-monuments {
+    background: #faf8f5; border-radius: 8px; padding: 12px; margin-bottom: 14px;
+  }
+  .detail-monuments h4 {
+    font-size: 9px; color: #8a7a68; text-transform: uppercase;
+    letter-spacing: 1.5px; margin-bottom: 8px;
+  }
+  .dm-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 4px 0; font-size: 12px;
+  }
+  .dm-name { color: #4a3f35; }
+  .dm-dist { font-weight: 600; }
+  .dm-close { color: #2e7d32; }
+  .dm-mid { color: #f9a825; }
+  .dm-far { color: #ef6c00; }
+
+  .detail-summary {
+    font-size: 12px; color: #4a3f35; line-height: 1.7;
+    padding: 12px; background: #f5f0ea; border-radius: 8px;
+    border-left: 3px solid #c4a478;
+  }
+
+  .detail-tags { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+  .detail-tag {
+    font-size: 10px; padding: 3px 10px; border-radius: 12px;
+    text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500;
+  }
+  .tag-zone { background: #f0ebe5; color: #8a7a68; }
+  .tag-size-small { background: #fff3e0; color: #ef6c00; }
+  .tag-size-medium { background: #e8f5e9; color: #2e7d32; }
+  .tag-size-large { background: #e3f2fd; color: #1565c0; }
+  .tag-size-xlarge { background: #f3e5f5; color: #7b1fa2; }
+  .tag-circuit { background: #e0f7fa; color: #00838f; }
+  .tag-premium { background: #fce4ec; color: #c62828; }
+
+  .gmaps-link {
+    display: inline-block; margin-top: 10px;
+    font-size: 11px; color: #1a73e8; text-decoration: none;
+    padding: 4px 12px; border: 1px solid #1a73e8; border-radius: 6px;
+    transition: all 0.2s;
+  }
+  .gmaps-link:hover { background: #1a73e8; color: #fff; }
+
+  /* Methodology */
+  .methodology {
+    background: #fff; border: 1px solid #e8e0d4; border-radius: 12px;
+    padding: 24px; margin-top: 30px;
+  }
+  .methodology h3 { font-family: 'Playfair Display', serif; font-size: 16px; color: #2c2520; margin-bottom: 12px; }
+  .methodology p { font-size: 12px; color: #6a5d50; margin-bottom: 6px; }
+  .methodology ul { font-size: 12px; color: #6a5d50; margin: 6px 0 6px 20px; }
+  .methodology li { margin-bottom: 4px; }
+
+  .footer {
+    text-align: center; padding: 30px; font-size: 11px; color: #8a7a68;
+    border-top: 1px solid #e8e0d4; margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<nav class="site-nav no-print" style="position:fixed;top:0;left:0;right:0;z-index:2000;background:rgba(15,13,11,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(196,164,120,.15);padding:0 24px;height:40px;display:flex;align-items:center;justify-content:space-between">
+  <a href="index.html" style="font-family:'Playfair Display',serif;font-size:14px;color:#c4a478;text-decoration:none">Riads de Fès</a>
+  <div style="display:flex;gap:20px">
+    <a href="index.html" style="color:#9a8d7f;text-decoration:none;font-size:11px;font-weight:500;letter-spacing:.5px;text-transform:uppercase">Accueil</a>
+    <a href="carte.html" style="color:#9a8d7f;text-decoration:none;font-size:11px;font-weight:500;letter-spacing:.5px;text-transform:uppercase">Carte</a>
+    <a href="rapport.html" style="color:#c4a478;text-decoration:none;font-size:11px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;border-bottom:2px solid #c4a478;padding-bottom:2px">Rapport</a>
+  </div>
+</nav>
+
+<div class="print-bar no-print" style="top:40px;">
+  <span>Rapport d'Investissement — Riads Médina de Fès</span>
+  <div style="display:flex;gap:10px;">
+    <button class="print-btn" onclick="window.print()">Imprimer / Sauvegarder PDF</button>
+  </div>
+</div>
+<div style="height:88px;" class="no-print"></div>
+
+<div class="container">
+  <!-- COVER -->
+  <div class="cover">
+    <div class="cover-content">
+      <h1>Riads de la Médina de Fès</h1>
+      <h2>Rapport d'Analyse d'Investissement</h2>
+      <div class="cover-line"></div>
+      <p style="font-size:13px;color:#9a8d7f;max-width:500px;margin:0 auto;">
+        Analyse détaillée de 29 propriétés traditionnelles (riads) situées dans la médina historique de Fès el-Bali, patrimoine mondial UNESCO. Classement basé sur la surface, la proximité des monuments, des circuits touristiques, des parkings et des points d'intérêt.
+      </p>
+      <div class="cover-stats">
+        <div class="cover-stat"><div class="csv">29</div><div class="csl">Propriétés</div></div>
+        <div class="cover-stat"><div class="csv">2 384</div><div class="csl">m² totaux</div></div>
+        <div class="cover-stat"><div class="csv">18</div><div class="csl">Monuments réf.</div></div>
+        <div class="cover-stat"><div class="csv">2</div><div class="csl">Circuits tourist.</div></div>
+      </div>
+      <div class="cover-date">Préparé le 2 mai 2026</div>
+    </div>
+  </div>
+
+  <!-- EXECUTIVE SUMMARY -->
+  <div class="section">
+    <h2>Résumé Exécutif</h2>
+    <p>Ce rapport présente l'analyse de <strong>29 riads non titrés (melkia)</strong> disponibles à l'achat dans la médina de Fès, répartis sur <strong>18 quartiers</strong> distincts. Chaque propriété a été évaluée selon trois critères clés :</p>
+    <p><strong>1. Surface au sol (m²)</strong> — Les surfaces indiquées correspondent au rez-de-chaussée. Chaque riad comprend typiquement RDC + étage + terrasse. Le patio central est obligatoire (~20% de la surface au sol). Le cahier des charges tourisme impose cuisine, sanitaires invités, sanitaires privés. <em>Référence calibrée : 117 m² au sol = 4 chambres (constaté sur un projet réel à Marrakech).</em></p>
+    <p><strong>2. Proximité du monument le plus proche</strong> — Les monuments attirent les touristes ; un riad proche bénéficie d'une visibilité et d'un emplacement premium.</p>
+    <p><strong>3. Proximité du circuit touristique principal</strong> — Le circuit Bab Bou Jeloud → Qarawiyyin → Tanneries Chouara est le parcours le plus emprunté. Un riad sur ce tracé maximise l'exposition aux visiteurs.</p>
+    <p><strong>4. Proximité du parking le plus proche</strong> — L'accessibilité pour les clients avec bagages et pour les travaux de rénovation (transport de matériaux) est un critère déterminant.</p>
+    <p><strong>5. Proximité des points d'intérêt (hotspots)</strong> — Cafés, hôtels de référence, souks, hammams, points de vue — indicateurs de l'attractivité commerciale du quartier.</p>
+    <p>Les distances sont calculées en <strong>distances de marche estimées</strong> (distance à vol d'oiseau × 1,8 pour tenir compte des ruelles sinueuses de la médina), avec un temps de marche basé sur 50 mètres/minute (vitesse réduite dans la médina).</p>
+  </div>
+
+  <!-- RANKING TABLE -->
+  <div class="section">
+    <h2>Classement Général des 29 Propriétés</h2>
+    <p style="margin-bottom:12px;">Trié par score d'investissement global (5 = meilleur). Le score combine : zone touristique (20%), surface (20%), monument (20%), circuit (15%), parking (15%), hotspots (10%).</p>
+    <table class="summary-table" id="ranking-table">
+      <thead>
+        <tr>
+          <th>Rang</th>
+          <th>Nom</th>
+          <th>Quartier</th>
+          <th>Surface</th>
+          <th>Standing RGC</th>
+          <th>Monument</th>
+          <th>Parking</th>
+          <th>Circuit</th>
+          <th>Score</th>
+        </tr>
+      </thead>
+      <tbody id="ranking-body"></tbody>
+    </table>
+  </div>
+
+  <!-- DETAILED CARDS -->
+  <div class="section page-break">
+    <h2>Fiches Détaillées par Propriété</h2>
+    <p style="margin-bottom:20px;">Chaque fiche présente les caractéristiques complètes de la propriété, ses distances aux 3 monuments les plus proches, sa position par rapport aux circuits touristiques, et une analyse résumée.</p>
+    <div id="detail-cards"></div>
+  </div>
+
+  <!-- METHODOLOGY -->
+  <div class="methodology page-break">
+    <h3>Méthodologie & Avertissements</h3>
+    <p><strong>Calcul des distances :</strong></p>
+    <ul>
+      <li>Distance à vol d'oiseau (formule de Haversine) multipliée par un facteur de 1,8 pour simuler le parcours sinueux des ruelles de la médina</li>
+      <li>Temps de marche estimé à 50 mètres/minute (vitesse réduite en raison des ruelles étroites, escaliers et foule)</li>
+      <li>Ces distances sont <strong>approximatives</strong> — une vérification sur place est indispensable</li>
+    </ul>
+    <p><strong>Positionnement des riads :</strong></p>
+    <ul>
+      <li>Les coordonnées GPS sont approximatives, basées sur les noms de quartier et de derb (ruelle)</li>
+      <li>Les adresses de la médina ne sont pas géocodées de manière précise — il est fortement recommandé de visiter chaque propriété avec un guide local</li>
+    </ul>
+    <p><strong>Score d'investissement (6 critères pondérés) :</strong></p>
+    <ul>
+      <li>Score de zone touristique : 20% (basé sur le niveau de tourisme du quartier)</li>
+      <li>Score de surface : 20% (plus la surface est grande, plus le potentiel est élevé)</li>
+      <li>Score de proximité monument : 20% (distance au monument le plus proche)</li>
+      <li>Score de proximité circuit : 15% (distance au circuit touristique le plus proche)</li>
+      <li>Score de proximité parking : 15% (distance au parking le plus proche — accès véhicule crucial pour rénovation et accueil clients)</li>
+      <li>Score de proximité hotspot : 10% (distance au point d'intérêt le plus proche — cafés, hammams, souks, hôtels, belvédères)</li>
+    </ul>
+    <p><strong>Classification RGC — Normes du Ministère du Tourisme :</strong></p>
+    <p>Les estimations de standing sont basées sur les fichiers officiels RGC (Référentiel Général de Classement) du Ministère du Tourisme marocain pour les Maisons d'Hôtes :</p>
+    <ul>
+      <li><strong>Toutes catégories :</strong> minimum 4 chambres, maximum 10 chambres, pas de cuisine/kitchenette dans les chambres</li>
+      <li><strong>1★ :</strong> chambre ≥ 12 m² · SdB ≥ 2 m² · accueil ≥ 10 m²</li>
+      <li><strong>2★ :</strong> chambre ≥ 14 m² · SdB ≥ 2,5 m² · accueil ≥ 10 m² · espaces verts</li>
+      <li><strong>3★ :</strong> chambre ≥ 16 m² · SdB ≥ 3 m² · accueil ≥ 15 m² · cuisine 8-12 m² · mini-piscine ≥ 5 m² · hammam</li>
+      <li><strong>4★ :</strong> chambre ≥ 20 m² · SdB ≥ 3,5 m² · accueil ≥ 20 m² · cuisine 10-20 m² · mini-piscine ≥ 7 m² · hammam · sauna</li>
+      <li><strong>5★ :</strong> chambre ≥ 25 m² · SdB ≥ 4 m² · accueil ≥ 25 m² · cuisine 10-20 m² · piscine ≥ 15 m² · dressing ≥ 3 m²</li>
+      <li><strong>Tolérance médina :</strong> 10 m² minimum accepté sur 20% des chambres (toutes catégories)</li>
+    </ul>
+    <p>Le calcul prend en compte : surface au sol (RDC) × 2 niveaux, patio obligatoire ~20%, espaces communs (accueil, WC, cuisine selon catégorie). <strong>Calibration :</strong> 117 m² au sol → 4 chambres en 2★ (projet réel à Marrakech).</p>
+    <p><strong>Immatriculation :</strong> Toutes les propriétés sont indiquées comme « Non » immatriculées. L'immatriculation foncière est fortement conseillée avant tout achat. Prévoir des frais juridiques et de titrage.</p>
+    <p><strong>Circuits touristiques de référence :</strong></p>
+    <ul>
+      <li><strong>Circuit principal (bleu) :</strong> Bab Bou Jeloud → Talaa Kebira → Médersa Bou Inania → Fondouk Nejjarine → Zaouïa Moulay Idriss II → Médersa Attarine → Mosquée Qarawiyyin → Place Seffarine → Tanneries Chouara</li>
+      <li><strong>Circuit secondaire (vert) :</strong> Bab Bou Jeloud → Talaa Sghira → Rahbat Zbib → R'cif → Bab Rcif</li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    Rapport préparé pour l'évaluation d'investissement immobilier · Médina de Fès, Maroc · Mai 2026<br>
+    Les informations contenues dans ce rapport sont fournies à titre indicatif. Une vérification sur place et un conseil juridique sont indispensables avant toute transaction.
+  </div>
+</div>
+
+<script>
+const parkings = [
+  {name:"Parking Bab Bou Jeloud",short:"P. Bou Jeloud",lat:34.06140,lng:-4.98280},
+  {name:"Parking Bab Guissa",short:"P. Guissa",lat:34.06780,lng:-4.97500},
+  {name:"Parking Place R'cif",short:"P. R'cif",lat:34.06120,lng:-4.96900},
+  {name:"Parking Ain Azliten",short:"P. Ain Azliten",lat:34.05980,lng:-4.97800},
+  {name:"Parking Bab Ftouh",short:"P. Bab Ftouh",lat:34.05700,lng:-4.97300},
+  {name:"Parking Oued Zhoun",short:"P. Oued Zhoun",lat:34.05900,lng:-4.97000},
+];
+
+const hotspots = [
+  {name:"Café Clock",short:"Café Clock",lat:34.06250,lng:-4.97480},
+  {name:"Riad Fès (Hôtel 5★)",short:"Riad Fès",lat:34.06300,lng:-4.97300},
+  {name:"Palais Jamaï",short:"Palais Jamaï",lat:34.06720,lng:-4.97480},
+  {name:"Hammam Sidi Azzouz",short:"Hammam Azzouz",lat:34.06280,lng:-4.97200},
+  {name:"Souk des Teinturiers",short:"S. Teinturiers",lat:34.06350,lng:-4.97420},
+  {name:"Jardin Jnan Sbil",short:"Jnan Sbil",lat:34.06050,lng:-4.98200},
+  {name:"Souk Attarine",short:"S. Attarine",lat:34.06360,lng:-4.97380},
+  {name:"Talaa Kebira",short:"Talaa Kebira",lat:34.06300,lng:-4.97900},
+  {name:"Place Lalla Yeddouna",short:"Lalla Yeddouna",lat:34.06350,lng:-4.97100},
+  {name:"Terrasse des Tanneurs",short:"Terr. Tanneurs",lat:34.06460,lng:-4.96920},
+];
+
+const monuments = [
+  { id: "bab-boujloud", name: "Bab Bou Jeloud", nameShort: "Bab Bou Jeloud", lat: 34.06180, lng: -4.98220 },
+  { id: "bou-inania", name: "Médersa Bou Inania", nameShort: "Bou Inania", lat: 34.06280, lng: -4.98080 },
+  { id: "dar-magana", name: "Dar el-Magana", nameShort: "Dar el-Magana", lat: 34.06300, lng: -4.98000 },
+  { id: "nejjarine", name: "Fondouk Nejjarine", nameShort: "Nejjarine", lat: 34.06350, lng: -4.97520 },
+  { id: "moulay-idriss", name: "Zaouïa Moulay Idriss II", nameShort: "Moulay Idriss II", lat: 34.06320, lng: -4.97380 },
+  { id: "attarine", name: "Médersa Attarine", nameShort: "Attarine", lat: 34.06380, lng: -4.97350 },
+  { id: "qarawiyyin", name: "Mosquée Qarawiyyin", nameShort: "Qarawiyyin", lat: 34.06400, lng: -4.97280 },
+  { id: "seffarine", name: "Place Seffarine", nameShort: "Pl. Seffarine", lat: 34.06420, lng: -4.97180 },
+  { id: "tanneries", name: "Tanneries Chouara", nameShort: "Tanneries", lat: 34.06480, lng: -4.96880 },
+  { id: "dar-batha", name: "Musée Dar Batha", nameShort: "Dar Batha", lat: 34.06120, lng: -4.98080 },
+  { id: "rcif", name: "Place R'cif", nameShort: "Pl. R'cif", lat: 34.06150, lng: -4.96950 },
+  { id: "henna-souk", name: "Souk du Henné", nameShort: "Souk Henné", lat: 34.06320, lng: -4.97480 },
+  { id: "cherratine", name: "Médersa Cherratine", nameShort: "Cherratine", lat: 34.06400, lng: -4.97150 },
+  { id: "borj-nord", name: "Borj Nord", nameShort: "Borj Nord", lat: 34.06680, lng: -4.98300 },
+  { id: "merinides", name: "Tombeaux Mérinides", nameShort: "T. Mérinides", lat: 34.06880, lng: -4.97750 },
+  { id: "ain-allou", name: "Fontaine Ain Allou", nameShort: "Ain Allou", lat: 34.06300, lng: -4.97850 },
+  { id: "bab-rcif", name: "Bab Rcif", nameShort: "Bab Rcif", lat: 34.06100, lng: -4.96850 },
+  { id: "bab-guissa", name: "Bab Guissa", nameShort: "Bab Guissa", lat: 34.06750, lng: -4.97450 },
+];
+
+const circuitPrincipal = [
+  [34.06180,-4.98220],[34.06210,-4.98180],[34.06250,-4.98120],[34.06280,-4.98080],
+  [34.06300,-4.98000],[34.06300,-4.97850],[34.06310,-4.97750],[34.06320,-4.97650],
+  [34.06340,-4.97550],[34.06350,-4.97520],[34.06320,-4.97480],[34.06320,-4.97380],
+  [34.06380,-4.97350],[34.06400,-4.97280],[34.06420,-4.97180],[34.06430,-4.97100],
+  [34.06450,-4.97000],[34.06480,-4.96880]
+];
+const circuitSecondaire = [
+  [34.06180,-4.98220],[34.06150,-4.98150],[34.06120,-4.98080],[34.06100,-4.97950],
+  [34.06080,-4.97800],[34.06100,-4.97650],[34.06120,-4.97500],[34.06150,-4.97450],
+  [34.06200,-4.97330],[34.06250,-4.97250],[34.06280,-4.97180],[34.06300,-4.97100],
+  [34.06250,-4.97000],[34.06200,-4.96980],[34.06150,-4.96950],[34.06100,-4.96850]
+];
+
+const riads = [
+  { name: "Dar Sayeh", address: "30 Zankat Chedda Ras Jnane", surface: 72, zone: "Ras Jnane", lat: 34.06720, lng: -4.97180 },
+  { name: "Dar CHAKCHAK", address: "9 Derb Nachar Ras Jnane", surface: 104, zone: "Ras Jnane", lat: 34.06690, lng: -4.97220 },
+  { name: "Dar Lyoussfi", address: "25 Ras Jnane Laayoune", surface: 65, zone: "Ras Jnane", lat: 34.06650, lng: -4.97260 },
+  { name: "Dar Dahbi Abdelouahed", address: "20 Ras Jnane", surface: 48, zone: "Ras Jnane", lat: 34.06710, lng: -4.97300 },
+  { name: "Dar Aicha", address: "5 Derb Raiss Ras Jnane", surface: 85, zone: "Ras Jnane", lat: 34.06670, lng: -4.97140 },
+  { name: "Dar Raiss Med", address: "36 Takharbicht Laayoune", surface: 52, zone: "Laayoune", lat: 34.06380, lng: -4.97550 },
+  { name: "Dar Benkirane", address: "22 Derb Tbibat Laayoune", surface: 122, zone: "Laayoune", lat: 34.06340, lng: -4.97500 },
+  { name: "Dar Mellouki 1", address: "35 Takharbicht Laayoune", surface: 94, zone: "Laayoune", lat: 34.06400, lng: -4.97580 },
+  { name: "Dar Boussaadani", address: "1 Zaouina Laayoune", surface: 87, zone: "Laayoune", lat: 34.06320, lng: -4.97620 },
+  { name: "Dar Yaakoubi", address: "13 Derb Lamkaouass Laayoune", surface: 95, zone: "Laayoune", lat: 34.06360, lng: -4.97650 },
+  { name: "Dar Benjelloune", address: "19 Sbaa Louyat", surface: 110, zone: "Sbaa Louyat", lat: 34.06250, lng: -4.97400 },
+  { name: "Dar Mellouki 2", address: "4 Derb Rial Aqibat Ben Souaf", surface: 106, zone: "Aqibat Ben Souaf", lat: 34.06350, lng: -4.97350 },
+  { name: "Dar Bni Hya", address: "37 Ain El Khail", surface: 108, zone: "Ain El Khail", lat: 34.06500, lng: -4.97100 },
+  { name: "Dar Benwahoude", address: "17 Derb Sidi Boudiama Blida", surface: 100, zone: "Blida", lat: 34.06050, lng: -4.97350 },
+  { name: "Dar Essabbar", address: "26 Derb Lemssid Akibat Lfirane", surface: 52, zone: "Aqibat Lfirane", lat: 34.06280, lng: -4.97250 },
+  { name: "Dar Moradi", address: "64 Derb Lemsid Aqibat Lfirane", surface: 69, zone: "Aqibat Lfirane", lat: 34.06250, lng: -4.97280 },
+  { name: "Dar Hamdani", address: "8 Aqbat Derb Syour Rahbat Zbib", surface: 166, zone: "Rahbat Zbib", lat: 34.06150, lng: -4.97450 },
+  { name: "Dar Naim", address: "31 Derb Benchlouch Rehat Zbib", surface: 106, zone: "Rahbat Zbib", lat: 34.06180, lng: -4.97420 },
+  { name: "Dar Baghdadi", address: "Derb Leben Zkak Rommane", surface: 60, zone: "Zkak Rommane", lat: 34.06420, lng: -4.97380 },
+  { name: "Dar Moustabchir", address: "39 Derbsidi Ahmed Chaoui", surface: 60, zone: "Sidi Ahmed Chaoui", lat: 34.06200, lng: -4.97150 },
+  { name: "Dar Missouri Idrissi", address: "50 Derb Slassi Farrane Kouicha", surface: 81, zone: "Farrane Kouicha", lat: 34.06100, lng: -4.97050 },
+  { name: "Dar Kharrat", address: "13 Derb Sidi Lahkim Aqibat Firan", surface: 34, zone: "Aqibat Firan", lat: 34.06300, lng: -4.97180 },
+  { name: "Dar Bouatrass", address: "34 Rmila Kedddane", surface: 62, zone: "Rmila", lat: 34.06050, lng: -4.96950 },
+  { name: "Dar Guennoune", address: "2 Derb Laarssa Sid Laaouad", surface: 64, zone: "Sid Laaouad", lat: 34.06450, lng: -4.97050 },
+  { name: "Dar Janati", address: "10 Zankat Hajjama Rahbat Lkayss", surface: 53, zone: "Rahbat Lkayss", lat: 34.06200, lng: -4.97330 },
+  { name: "Dar Bouhtouri", address: "23 Ouad Rechacha", surface: 108, zone: "Ouad Rechacha", lat: 34.06100, lng: -4.97200 },
+  { name: "Dar Bensouda", address: "34 Derb Bensouda Aquibat Zarqa", surface: 85, zone: "Aqibat Zarqa", lat: 34.06150, lng: -4.97100 },
+  { name: "Dar ROUASS", address: "55 Aqibat Zarka", surface: 60, zone: "Aqibat Zarqa", lat: 34.06130, lng: -4.97130 },
+  { name: "Dar Hassane", address: "11 Derb Zouiar Bouakda Chra", surface: 76, zone: "Bouakda", lat: 34.05950, lng: -4.97300 },
+];
+
+const zoneScores = {
+  "Ras Jnane": 3, "Laayoune": 4, "Sbaa Louyat": 5, "Aqibat Ben Souaf": 5,
+  "Ain El Khail": 3, "Blida": 2, "Aqibat Lfirane": 3, "Rahbat Zbib": 4,
+  "Zkak Rommane": 4, "Sidi Ahmed Chaoui": 2, "Farrane Kouicha": 3, "Aqibat Firan": 3,
+  "Rmila": 3, "Sid Laaouad": 2, "Rahbat Lkayss": 5, "Ouad Rechacha": 2,
+  "Aqibat Zarqa": 3, "Bouakda": 2
+};
+
+const zoneTourism = {
+  "Ras Jnane": "Modéré", "Laayoune": "Élevé", "Sbaa Louyat": "Très élevé", "Aqibat Ben Souaf": "Très élevé",
+  "Ain El Khail": "Modéré", "Blida": "Faible-Modéré", "Aqibat Lfirane": "Modéré-Élevé", "Rahbat Zbib": "Élevé",
+  "Zkak Rommane": "Élevé", "Sidi Ahmed Chaoui": "Faible", "Farrane Kouicha": "Modéré", "Aqibat Firan": "Modéré",
+  "Rmila": "Modéré", "Sid Laaouad": "Faible-Modéré", "Rahbat Lkayss": "Très élevé", "Ouad Rechacha": "Faible-Modéré",
+  "Aqibat Zarqa": "Modéré", "Bouakda": "Faible"
+};
+
+function haversine(lat1,lng1,lat2,lng2) {
+  const R=6371000, dLat=(lat2-lat1)*Math.PI/180, dLng=(lng2-lng1)*Math.PI/180;
+  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+function walkDist(a,b,c,d){return Math.round(haversine(a,b,c,d)*1.8)}
+function walkTime(m){return Math.max(1,Math.round(m/50))}
+function distPoly(lat,lng,poly){let min=Infinity;for(let i=0;i<poly.length-1;i++){min=Math.min(min,haversine(lat,lng,poly[i][0],poly[i][1]),haversine(lat,lng,poly[i+1][0],poly[i+1][1]));}return Math.round(min*1.5)}
+
+function nearest3(riad){
+  return monuments.map(m=>({m,d:walkDist(riad.lat,riad.lng,m.lat,m.lng)}))
+    .sort((a,b)=>a.d-b.d).slice(0,3).map(x=>({...x,t:walkTime(x.d)}));
+}
+
+function nearestParking(riad){
+  let b=null,bd=1e9;for(const p of parkings){const d=walkDist(riad.lat,riad.lng,p.lat,p.lng);if(d<bd){bd=d;b=p}}return{p:b,d:bd,t:walkTime(bd)};
+}
+
+function nearestHotspot(riad){
+  let b=null,bd=1e9;for(const h of hotspots){const d=walkDist(riad.lat,riad.lng,h.lat,h.lng);if(d<bd){bd=d;b=h}}return{h:b,d:bd,t:walkTime(bd)};
+}
+
+function circuitDist(riad){
+  const d1=distPoly(riad.lat,riad.lng,circuitPrincipal);
+  const d2=distPoly(riad.lat,riad.lng,circuitSecondaire);
+  return {p:d1,s:d2,best:Math.min(d1,d2),tp:walkTime(d1),ts:walkTime(d2)};
+}
+
+function investScore(riad){
+  const zs=zoneScores[riad.zone]||2;
+  let ss=riad.surface>=120?5:riad.surface>=90?4:riad.surface>=60?3:riad.surface>=45?2:1;
+  const nm=nearest3(riad)[0];
+  let ms=nm.d<150?5:nm.d<300?4:nm.d<500?3:nm.d<800?2:1;
+  const cd=circuitDist(riad);
+  let cs=cd.best<100?5:cd.best<200?4:cd.best<400?3:cd.best<600?2:1;
+  const np=nearestParking(riad);
+  let ps=np.d<300?5:np.d<500?4:np.d<800?3:np.d<1200?2:1;
+  const nh=nearestHotspot(riad);
+  let hs=nh.d<100?5:nh.d<200?4:nh.d<400?3:nh.d<600?2:1;
+  return Math.round(zs*0.2+ss*0.2+ms*0.2+cs*0.15+ps*0.15+hs*0.1);
+}
+
+function sizeLabel(s){return s<60?"Petit":s<90?"Moyen":s<120?"Grand":"XL"}
+function sizeCls(s){return s<60?"small":s<90?"medium":s<120?"large":"xlarge"}
+function distCls(d){return d<250?"close":d<500?"mid":"far"}
+function distClsFr(d){return d<250?"Proche":d<500?"Moyen":"Éloigné"}
+
+const rgcNorms = {
+  1: {room:12,accueil:10,cuisine:0},
+  2: {room:14,accueil:10,cuisine:0},
+  3: {room:16,accueil:15,cuisine:8},
+  4: {room:20,accueil:20,cuisine:10},
+  5: {room:25,accueil:25,cuisine:10},
+};
+
+function rgcRooms(surface, star){
+  const n = rgcNorms[star];
+  const patio = surface * 0.20;
+  const usable = surface * 2 - patio * 2;
+  const common = n.accueil + 5 + n.cuisine;
+  return Math.min(Math.max(0, Math.floor((usable - common) / n.room)), 10);
+}
+
+function maxStar(surface){
+  for(let s=5; s>=1; s--) if(rgcRooms(surface,s)>=4) return s;
+  return 0;
+}
+
+function roomEstimate(s){
+  const star = maxStar(s);
+  if(star===0) return "< 4 ch. — non classable";
+  const rooms = rgcRooms(s, star);
+  return rooms + " ch. en " + star + "★";
+}
+
+function roomEstimateDetailed(s){
+  const results = [];
+  for(let star=1; star<=5; star++){
+    const r = rgcRooms(s, star);
+    if(r>=4) results.push(star+"★: "+r+" ch.");
+  }
+  if(results.length===0) return "Surface insuffisante pour maison d'hôtes (min 4 chambres requises)";
+  return results.join(" · ");
+}
+
+function generateSummary(r,n3,cd,score,np,nh){
+  const parts=[];
+  if(score>=4) parts.push(`Propriété à fort potentiel d'investissement (score ${score}/5).`);
+  else if(score>=3) parts.push(`Propriété avec un potentiel d'investissement correct (score ${score}/5).`);
+  else parts.push(`Propriété nécessitant une évaluation approfondie (score ${score}/5).`);
+
+  const star = maxStar(r.surface);
+  if(star>0){
+    parts.push(`Avec ${r.surface} m² au sol (RDC + étage + terrasse), classement possible jusqu'à ${star}★ avec ${rgcRooms(r.surface,star)} chambres (normes RGC du ministère du Tourisme, patio obligatoire ~20%).`);
+  } else {
+    parts.push(`Avec seulement ${r.surface} m² au sol, la surface est insuffisante pour atteindre le minimum de 4 chambres requis par le RGC. Usage en résidence privée ou Airbnb recommandé.`);
+  }
+
+  if(n3[0].d<200) parts.push(`Excellemment située à seulement ${n3[0].d}m (${n3[0].t} min à pied) de ${n3[0].m.name}.`);
+  else if(n3[0].d<400) parts.push(`Bien positionnée à ${n3[0].d}m (${n3[0].t} min à pied) de ${n3[0].m.name}.`);
+  else parts.push(`Située à ${n3[0].d}m (${n3[0].t} min à pied) du monument le plus proche (${n3[0].m.name}).`);
+
+  if(cd.best<150) parts.push(`Directement sur le circuit touristique (${cd.best}m), ce qui garantit une visibilité maximale.`);
+  else if(cd.best<300) parts.push(`Très proche du circuit touristique (${cd.best}m, ${walkTime(cd.best)} min), bon accès pour les visiteurs.`);
+  else parts.push(`À ${cd.best}m du circuit touristique le plus proche (${walkTime(cd.best)} min de marche).`);
+
+  if(np && np.d<400) parts.push(`Accès véhicule facilité : le ${np.p.name} est à seulement ${np.d}m (${np.t} min), un atout majeur pour la rénovation et l'accueil des clients.`);
+  else if(np && np.d<800) parts.push(`Le parking le plus proche (${np.p.short}) se trouve à ${np.d}m (${np.t} min), un accès acceptable.`);
+  else if(np) parts.push(`Accès véhicule plus difficile : le parking le plus proche est à ${np.d}m (${np.t} min). Prévoir un porteur pour les bagages des clients.`);
+
+  if(nh && nh.d<200) parts.push(`Proximité immédiate de ${nh.h.name}, un point d'intérêt qui renforce l'attractivité du quartier.`);
+
+  parts.push(`Quartier ${r.zone} — niveau de tourisme : ${zoneTourism[r.zone]}.`);
+
+  if(r.surface>=100) parts.push(`La surface importante offre une flexibilité de conception et un potentiel de revenus élevé.`);
+  if(r.surface<50) parts.push(`La surface limitée oriente plutôt vers un usage en résidence privée ou petit Airbnb.`);
+
+  return parts.join(' ');
+}
+
+// Compute all data
+const enriched = riads.map((r,i) => {
+  const n3 = nearest3(r);
+  const cd = circuitDist(r);
+  const np = nearestParking(r);
+  const nh = nearestHotspot(r);
+  const score = investScore(r);
+  const star = maxStar(r.surface);
+  return { ...r, idx: i, n3, cd, np, nh, score, star, summary: generateSummary(r, n3, cd, score, np, nh) };
+}).sort((a,b) => b.score - a.score || b.surface - a.surface);
+
+// RANKING TABLE
+const tbody = document.getElementById('ranking-body');
+enriched.forEach((r, rank) => {
+  const dc = distCls(r.n3[0].d);
+  const pc = distCls(r.np.d);
+  const cc = distCls(r.cd.best);
+  tbody.innerHTML += `<tr>
+    <td class="rank-cell">${rank+1}</td>
+    <td class="name-cell">${r.name}</td>
+    <td>${r.zone}</td>
+    <td><strong>${r.surface} m²</strong><br><span style="font-size:10px;color:#8a7a68">${sizeLabel(r.surface)}</span></td>
+    <td><span style="font-weight:bold;color:${r.star>=4?'#2e7d32':r.star>=2?'#f9a825':'#ef6c00'}">${r.star>0?r.star+'★ ('+rgcRooms(r.surface,r.star)+' ch.)':'Non classable'}</span></td>
+    <td><span class="dist-badge dist-${dc}">${r.n3[0].m.nameShort}<br>${r.n3[0].d}m · ${r.n3[0].t} min</span></td>
+    <td><span class="dist-badge dist-${pc}">${r.np.p.short}<br>${r.np.d}m · ${r.np.t} min</span></td>
+    <td><span class="dist-badge dist-${cc}">${r.cd.best}m · ${walkTime(r.cd.best)} min</span></td>
+    <td class="score-cell"><span class="score-badge score-${r.score}">${r.score}/5</span></td>
+  </tr>`;
+});
+
+// DETAIL CARDS
+const cardsDiv = document.getElementById('detail-cards');
+enriched.forEach((r, rank) => {
+  const sc = r.score >= 4 ? '#2e7d32' : r.score >= 3 ? '#f9a825' : '#ef6c00';
+  let monRows = r.n3.map(n => {
+    const c = n.d < 250 ? 'dm-close' : n.d < 500 ? 'dm-mid' : 'dm-far';
+    return `<div class="dm-row"><span class="dm-name">🏛️ ${n.m.name}</span><span class="dm-dist ${c}">${n.d}m · ${n.t} min</span></div>`;
+  }).join('');
+  monRows += `<div class="dm-row" style="margin-top:6px;padding-top:6px;border-top:1px solid #e8e0d4;">
+    <span class="dm-name">🔵 Circuit principal</span><span class="dm-dist ${r.cd.p<250?'dm-close':r.cd.p<500?'dm-mid':'dm-far'}">${r.cd.p}m · ${r.cd.tp} min</span></div>`;
+  monRows += `<div class="dm-row"><span class="dm-name">🟢 Circuit secondaire</span><span class="dm-dist ${r.cd.s<250?'dm-close':r.cd.s<500?'dm-mid':'dm-far'}">${r.cd.s}m · ${r.cd.ts} min</span></div>`;
+  monRows += `<div class="dm-row" style="margin-top:6px;padding-top:6px;border-top:1px solid #e8e0d4;">
+    <span class="dm-name">🅿️ ${r.np.p.name}</span><span class="dm-dist ${r.np.d<400?'dm-close':r.np.d<700?'dm-mid':'dm-far'}">${r.np.d}m · ${r.np.t} min</span></div>`;
+  monRows += `<div class="dm-row"><span class="dm-name">⭐ ${r.nh.h.name}</span><span class="dm-dist ${r.nh.d<200?'dm-close':r.nh.d<400?'dm-mid':'dm-far'}">${r.nh.d}m · ${r.nh.t} min</span></div>`;
+
+  const tags = [`<span class="detail-tag tag-zone">${r.zone}</span>`,
+    `<span class="detail-tag tag-size-${sizeCls(r.surface)}">${r.surface} m² · ${sizeLabel(r.surface)}</span>`];
+  if(r.star>0) tags.push(`<span class="detail-tag" style="background:${r.star>=4?'#e8f5e9;color:#2e7d32':r.star>=2?'#fff8e1;color:#f9a825':'#fff3e0;color:#ef6c00'}">${r.star}★ RGC · ${rgcRooms(r.surface,r.star)} ch.</span>`);
+  else tags.push(`<span class="detail-tag" style="background:#fce4ec;color:#c62828">Non classable</span>`);
+  if(r.cd.best<200) tags.push(`<span class="detail-tag tag-circuit">Sur le circuit</span>`);
+  if(r.np.d<400) tags.push(`<span class="detail-tag tag-zone">🅿️ Parking proche</span>`);
+  if(r.score>=4) tags.push(`<span class="detail-tag tag-premium">Investissement premium</span>`);
+
+  cardsDiv.innerHTML += `
+  <div class="riad-detail">
+    <div class="riad-detail-header">
+      <div class="riad-detail-rank">#${rank+1}</div>
+      <div class="riad-detail-title">
+        <div class="riad-detail-name">${r.name}</div>
+        <div class="riad-detail-address">${r.address} · ${r.zone}</div>
+      </div>
+      <div class="riad-detail-score">
+        <div class="big-score" style="color:${sc}">${r.score}/5</div>
+        <div class="score-label">Score invest.</div>
+      </div>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-box">
+        <h4>Surface au sol</h4>
+        <div class="dval">${r.surface} m²</div>
+        <div class="dsub">${sizeLabel(r.surface)} · RDC + étage + terrasse</div>
+      </div>
+      <div class="detail-box">
+        <h4>Standing max (normes RGC)</h4>
+        <div class="dval" style="color:${r.star>=4?'#2e7d32':r.star>=2?'#f9a825':'#ef6c00'}">${r.star>0?r.star+'★':' Non classable'}</div>
+        <div class="dsub">${roomEstimateDetailed(r.surface)}</div>
+      </div>
+      <div class="detail-box">
+        <h4>Niveau tourisme du quartier</h4>
+        <div class="dval">${zoneTourism[r.zone]}</div>
+        <div class="dsub">Score zone : ${'★'.repeat(zoneScores[r.zone])}${'☆'.repeat(5-zoneScores[r.zone])}</div>
+      </div>
+    </div>
+    <div class="detail-monuments">
+      <h4>Distances aux points d'intérêt (à pied)</h4>
+      ${monRows}
+    </div>
+    <div class="detail-summary">${r.summary}</div>
+    <div class="detail-tags">${tags.join('')}</div>
+    <a class="gmaps-link" href="https://www.google.com/maps/search/${encodeURIComponent(r.address+' Fès Médina Maroc')}" target="_blank">📍 Voir sur Google Maps</a>
+  </div>`;
+});
+</script>
+</body>
+</html>
