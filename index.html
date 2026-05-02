@@ -54,10 +54,35 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(15,13,11,.9
 
 footer{text-align:center;padding:40px 24px;border-top:1px solid rgba(196,164,120,.1);color:#6a5d50;font-size:11px}
 
-@media(max-width:600px){
-  .hero-stats{gap:24px}.hero-stat .val{font-size:32px}
-  .nav-links{gap:12px}.nav-links a{font-size:11px}
-  .cards{grid-template-columns:1fr;gap:16px}
+@media(max-width:768px){
+  nav{padding:0 16px;height:48px}
+  .nav-brand{font-size:15px}
+  .nav-links{gap:14px}
+  .nav-links a{font-size:10px;letter-spacing:.3px}
+  .hero{padding:72px 16px 40px}
+  .hero h1{font-size:clamp(28px,8vw,42px)}
+  .hero h2{font-size:clamp(14px,4vw,18px);margin-bottom:24px}
+  .hero-stats{gap:16px;flex-wrap:wrap}
+  .hero-stat{min-width:70px}
+  .hero-stat .val{font-size:28px}
+  .hero-stat .lbl{font-size:9px;letter-spacing:1px}
+  .cards{grid-template-columns:1fr;gap:16px;margin-bottom:40px}
+  .card{padding:24px}
+  .card h3{font-size:18px}
+  .card p{font-size:12px}
+  .section{padding:36px 16px}
+  .section h2{font-size:22px}
+  .rgc-table{font-size:11px}
+  .rgc-table th,.rgc-table td{padding:8px}
+  .methodology{grid-template-columns:1fr;gap:12px}
+}
+@media(max-width:400px){
+  .hero-stats{gap:12px}
+  .hero-stat .val{font-size:24px}
+  .card{padding:20px}
+  .card-icon{font-size:28px}
+  .card h3{font-size:16px}
+  .card-feat{font-size:9px;padding:2px 8px}
 }
 </style>
 </head>
@@ -116,7 +141,7 @@ footer{text-align:center;padding:40px 24px;border-top:1px solid rgba(196,164,120
 <div class="section">
   <h2>Normes RGC — Ministère du Tourisme</h2>
   <p style="text-align:center;color:#9a8d7f;margin-bottom:24px;font-size:13px;">Référentiel Général de Classement pour Maisons d'Hôtes · Toutes catégories : 4 à 10 chambres</p>
-  <table class="rgc-table">
+  <div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="rgc-table">
     <thead>
       <tr><th>Catégorie</th><th>Chambre min.</th><th>Salle de bain</th><th>Accueil</th><th>Cuisine</th><th>Extras</th></tr>
     </thead>
@@ -127,7 +152,7 @@ footer{text-align:center;padding:40px 24px;border-top:1px solid rgba(196,164,120
       <tr><td class="star">4★</td><td>≥ 20 m²</td><td>≥ 3,5 m²</td><td>≥ 20 m²</td><td>10-20 m²</td><td>Mini-piscine 7m², hammam, sauna</td></tr>
       <tr><td class="star">5★</td><td>≥ 25 m²</td><td>≥ 4 m²</td><td>≥ 25 m²</td><td>10-20 m²</td><td>Piscine 15m², dressing 3m²</td></tr>
     </tbody>
-  </table>
+  </table></div>
   <p style="text-align:center;color:#6a5d50;font-size:11px;margin-top:12px;">Tolérance médina : 10m² minimum accepté sur 20% des chambres · Patio central obligatoire (~20% surface au sol)</p>
 </div>
 

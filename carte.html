@@ -140,6 +140,45 @@
   .monument-desc{font-size:9px;color:#8a7a68;line-height:1.4}
   .monument-type{font-size:8px;color:#6a5d50;text-transform:uppercase;letter-spacing:1px;margin-top:2px}
   .hotspot-section-title{padding:8px 12px;font-size:9px;color:#8a7a68;text-transform:uppercase;letter-spacing:1.5px;border-bottom:1px solid rgba(196,164,120,.08);background:rgba(196,164,120,.03)}
+@media(max-width:768px){
+  #app{grid-template-columns:1fr;grid-template-rows:auto 45vh 55vh;height:100vh}
+  .site-nav{height:36px;padding:0 12px}
+  .site-nav .brand{font-size:12px}
+  .site-nav .links{gap:12px}
+  .site-nav a{font-size:9px}
+  header{padding:8px 12px}
+  header h1{font-size:15px}
+  header .subtitle{font-size:9px;letter-spacing:1px}
+  .header-stats{gap:12px}
+  .header-stat .value{font-size:15px}
+  .header-stat .label{font-size:8px;letter-spacing:1px}
+  .sidebar{border-right:none;border-bottom:1px solid rgba(196,164,120,.15)}
+  .tab-bar{top:0}
+  .filter-bar{padding:8px}
+  .filter-bar input{padding:6px 10px;font-size:11px}
+  .riad-card{padding:8px 10px}
+  .riad-name{font-size:12px}
+  .map-controls{top:6px;left:6px}
+  .layer-btn{padding:4px 6px;font-size:8px}
+  .toggle-group{top:32px;left:6px;padding:6px 8px}
+  .toggle-item{font-size:9px;margin-bottom:3px}
+  .toggle-item input{width:11px;height:11px}
+  .legend{bottom:6px;left:6px;padding:6px 10px;max-height:140px}
+  .legend h4{font-size:8px}
+  .zone-info-panel{width:260px;padding:12px;bottom:6px;right:6px}
+  .zone-info-panel h3{font-size:14px}
+  .shortlist-panel{top:6px;right:6px;min-width:140px;padding:8px 10px}
+  .leaflet-popup-content{min-width:180px!important;margin:8px 10px!important}
+  .popup-name{font-size:12px}
+  .popup-grid{gap:4px}
+  .popup-stat .pval{font-size:13px}
+}
+@media(max-width:400px){
+  #app{grid-template-rows:auto 50vh 50vh}
+  .header-stats{gap:8px}
+  .header-stat .value{font-size:13px}
+  .header-stat .label{font-size:7px}
+}
 </style>
 </head>
 <body>

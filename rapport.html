@@ -259,6 +259,55 @@
     text-align: center; padding: 30px; font-size: 11px; color: #8a7a68;
     border-top: 1px solid #e8e0d4; margin-top: 40px;
   }
+@media(max-width:768px){
+  .container{padding:20px 12px}
+  .cover{padding:40px 16px;margin:-20px -12px 20px}
+  .cover h1{font-size:26px}
+  .cover h2{font-size:15px;margin-bottom:20px}
+  .cover-line{margin:0 auto 20px}
+  .cover-stats{gap:20px;flex-wrap:wrap}
+  .cover-stat .csv{font-size:24px}
+  .cover-stat .csl{font-size:9px;letter-spacing:1px}
+  .cover-date{font-size:11px;margin-top:20px}
+  .section h2{font-size:20px}
+  .section p{font-size:12px}
+  .summary-table{font-size:10px}
+  .summary-table th{padding:6px 8px;font-size:8px;position:static}
+  .summary-table td{padding:5px 8px}
+  .rank-cell{font-size:14px}
+  .score-badge{font-size:10px;padding:2px 6px}
+  .dist-badge{font-size:9px;padding:1px 5px}
+  .riad-detail{padding:16px;margin-bottom:14px}
+  .riad-detail-header{margin-bottom:10px;padding-bottom:10px}
+  .riad-detail-rank{font-size:22px;min-width:32px}
+  .riad-detail-title{margin-left:10px}
+  .riad-detail-name{font-size:16px}
+  .riad-detail-address{font-size:11px}
+  .riad-detail-score .big-score{font-size:26px}
+  .detail-grid{grid-template-columns:1fr;gap:10px;margin-bottom:10px}
+  .detail-box{padding:10px}
+  .detail-box .dval{font-size:18px}
+  .detail-monuments{padding:10px;margin-bottom:10px}
+  .dm-row{padding:3px 0;font-size:11px}
+  .detail-summary{padding:10px;font-size:11px}
+  .detail-tag{font-size:9px;padding:2px 8px}
+  .gmaps-link{font-size:10px;padding:3px 10px}
+  .methodology{padding:16px;margin-top:20px}
+  .methodology h3{font-size:14px}
+  .methodology p,.methodology ul{font-size:11px}
+  .print-bar{padding:8px 12px;top:36px}
+  .print-btn{padding:6px 14px;font-size:11px}
+  nav.site-nav{height:36px;padding:0 12px}
+  nav.site-nav a{font-size:10px}
+  div[style*="height:88px"]{height:76px!important}
+  .footer{padding:20px;font-size:10px}
+}
+@media(max-width:400px){
+  .cover h1{font-size:22px}
+  .cover h2{font-size:13px}
+  .cover-stats{gap:14px}
+  .cover-stat .csv{font-size:20px}
+}
 </style>
 </head>
 <body>
@@ -316,7 +365,7 @@
   <div class="section">
     <h2>Classement Général des 29 Propriétés</h2>
     <p style="margin-bottom:12px;">Trié par score d'investissement global (5 = meilleur). Le score combine : zone touristique (20%), surface (20%), monument (20%), circuit (15%), parking (15%), hotspots (10%).</p>
-    <table class="summary-table" id="ranking-table">
+    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="summary-table" id="ranking-table">
       <thead>
         <tr>
           <th>Rang</th>
@@ -331,7 +380,7 @@
         </tr>
       </thead>
       <tbody id="ranking-body"></tbody>
-    </table>
+    </table></div>
   </div>
 
   <!-- DETAILED CARDS -->
